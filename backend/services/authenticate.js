@@ -1,14 +1,30 @@
-const Model = require(`../model/model`);
-const bcrypt = require('bcryptjs');
+const Model = require(`../model/model`)
+const bcrypt = require('bcryptjs')
+const jwt = require(`jsonwebtoken`)
+
+const createToken = (existedUser) => {
+    // encrypt user info
+    const data = { userId: existedUser._id }
+    // function jwt.sign() will create an obj
+    const token = jwt.sign(
+        data,
+        process.env.PRIVATE_KEY,
+        { expiresIn: process.env.EXPIRE_TIME }
+    )
+    return token
+}
 
 const findUser = async (userData) => {
-    const { email, password } = userData;
-    const doc = await Model.cycvuser.findOne({ email });
-    if (doc) {
-        const _doc_password = doc.password;
-        const isMatch = bcrypt.compareSync(password, _doc_password);
+    const { email, password } = userData
+    const existedUser = await Model.cycvuser.findOne({ email })
+    if (existedUser) {
+        const _existedUser_password = existedUser.password;
+        const isMatch = bcrypt.compareSync(password, _existedUser_password)
+
+        const token = createToken(existedUser)
+        const name = existedUser.name
         if (isMatch) {
-            return { token: `${doc._id}-${doc.name}`, messenger: "successfully!" }
+            return { token, name, messenger: "successfully!" }
         }
         return { messenger: "authenticate fail!" }
     }
@@ -19,10 +35,10 @@ const findUser = async (userData) => {
 //
 exports.generateToken = async (request, response) => {
     const { email, password } = request.body;
-    let sendData = await findUser({ email, password });
+    let sendData = await findUser({ email, password })
     if (sendData) {
         console.log(`login - found token:`, sendData)
-        response.send(sendData);
+        response.send(sendData)
         return;
     }
     response.status(404).send({ messenger: "there is no result for that user!" });
@@ -35,20 +51,21 @@ exports.createUser = async (request, response) => {
         response.status(404).send({ messenger: "content cannot be empty!" });
         return;
     }
-    const { email, name, password } = request.body;
+    const { email, name, password } = request.body
     const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt);
+    const hashPassword = bcrypt.hashSync(password, salt)
 
-    const user = await findUser({ email });
+    const user = await findUser({ email })
     if (user) {
         return response.send({ messenger: "The user have already initialized in our database!" });
     }
     const cycv = new Model.cycvuser({
-        email, password: hash, name
-    });
+        email, password: hashPassword, name
+    })
     cycv.save(cycv)
-        .then(doc => {
-            response.send({ token: `${doc._id}-${doc.name}`, messenger: "successfully!" });
+        .then(newUser => {
+            const token = createToken(newUser)
+            response.send({ token, name, messenger: "successfully!" });
         })
         .catch(err => {
             response.status(500).send({ messenger: err })

@@ -1,7 +1,7 @@
-const axios = require(`axios`);
-const Model = require(`../model/model`);
-const ObjectId = require(`mongoose`).Types.ObjectId;
-const bcrypt = require('bcryptjs');
+const axios = require(`axios`)
+const Model = require(`../model/model`)
+const ObjectId = require(`mongoose`).Types.ObjectId
+const bcrypt = require('bcryptjs')
 
 //
 // /api/weather
@@ -58,7 +58,7 @@ exports.weather = async (request, response) => {
 // /api/remove-savedata/:id
 //
 exports.removeSaveData = (request, response) => {
-    const { id } = request.params;
+    const id = request.user._id
     const { saveDataId, password } = request.query;
 
     Model.cycvuser.findOneAndUpdate(
@@ -90,11 +90,11 @@ exports.removeSaveData = (request, response) => {
 // /api/update-savedata/:id
 //
 exports.updateSaveData = (request, response) => {
-    const { id } = request.params;
-    const { saveDataId, password } = request.query;
-    const saveData = request.body;
+    const id = request.user._id
+    const { saveDataId, password } = request.query
+    const saveData = request.body
     if (!request.body) {
-        response.status(404).send({ messenger: "content cannot be empty!" });
+        response.status(404).send({ messenger: "content cannot be empty!" })
         return;
     }
 
@@ -110,12 +110,12 @@ exports.updateSaveData = (request, response) => {
         }, { new: true },
         function (err, doc) {
             if (doc) {
-                response.send({ messenger: "successfully!" });
+                response.send({ messenger: "successfully!" })
                 return;
             }
             if (err) {
                 console.log(`err`, err)
-                response.status(404).send({ messenger: "your info is so wrong!" });
+                response.status(404).send({ messenger: "your info is so wrong!" })
                 return;
             }
             console.log(`Can't find anything due to invalid password or id!`)
@@ -126,7 +126,7 @@ exports.updateSaveData = (request, response) => {
 // /api/add-savedata/:id
 //
 exports.addSaveData = (request, response) => {
-    const { id } = request.params;
+    const id = request.user._id
     const { password } = request.query;
     const saveData = request.body;
     if (!request.body) {
@@ -163,12 +163,12 @@ exports.addSaveData = (request, response) => {
         })
 }
 //
-// /api/get-savesdata/:id
+// /api/get-savesdata/:token
 //
 exports.getSavesData = async (request, response) => {
-    const { id } = request.params;
-    const { password, saveDataId } = request.query;
-    let doc;
+    const id = request.user._id
+    const { password, saveDataId } = request.query
+    let doc
     if (password) {
         try {
             doc = await Model.cycvuser.findOne(
@@ -177,20 +177,20 @@ exports.getSavesData = async (request, response) => {
                 });
         } catch (err) {
             console.log(`err`, err)
-            response.status(404).send({ messenger: "your info is so wrong!" });
+            response.status(404).send({ messenger: "your info is so wrong!" })
             return;
         }
         if (doc) {
             const _doc_password = doc.password;
             const isMatch = bcrypt.compareSync(password, _doc_password);
             if (isMatch) {
-                response.send({ doc: { savesData: doc.savesData }, messenger: "successfully!" });
+                response.send({ doc: { savesData: doc.savesData }, messenger: "successfully!" })
                 return;
             }
-            response.send({ messenger: "authenticate fail!" });
+            response.send({ messenger: "authenticate fail!" })
             return;
         }
-        response.status(404).send({ messenger: "something went wrong!" });
+        response.status(404).send({ messenger: "something went wrong!" })
         return;
     }
     // Return Specific Fields in Embedded Documents
@@ -204,9 +204,9 @@ exports.getSavesData = async (request, response) => {
                 {
                     _id: 0, // omit _id property
                     "savesData": {
-                        $elemMatch: 
+                        $elemMatch:
                         {
-                            _saveDataId: 
+                            _saveDataId:
                             {
                                 $eq: ObjectId(saveDataId)
                             }
@@ -216,15 +216,15 @@ exports.getSavesData = async (request, response) => {
             );
         } catch (err) {
             console.log(`err`, err)
-            response.status(404).send({ messenger: "your query is so wrong!" });
+            response.status(404).send({ messenger: "your query is so wrong!" })
             return;
         }
         console.log(`doc`, doc[0])
         if (doc.length > 0) {
-            response.send({ doc: doc[0].savesData[0], messenger: "successfully!" });
+            response.send({ doc: doc[0].savesData[0], messenger: "successfully!" })
             return;
         }
-        response.status(404).send({ messenger: "something went wrong!" });
+        response.status(404).send({ messenger: "something went wrong!" })
         return;
     }
 

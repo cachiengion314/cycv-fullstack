@@ -25,6 +25,7 @@ class Vars {
                 name: null,
                 savesData: null,
                 current_saveDataId: null,
+                token: null,
             },
         }
         this.authenticateUserInput = (dispatch, email_input, password_input) => {
@@ -76,42 +77,39 @@ class Vars {
         }
         this.saveUserInfoToLocal = (userId, password, name, savesData, current_saveDataId) => {
             let obj = this.getCycvObjInLocal();
-            obj.user.userId = userId;
-            obj.user.password = password;
-            obj.user.name = name;
-            obj.user.savesData = savesData;
+            obj.user.userId = userId
+            obj.user.password = password
+            obj.user.name = name
+            obj.user.savesData = savesData
+            obj.user.token = userId
             if (current_saveDataId) {
                 obj.user.current_saveDataId = current_saveDataId;
             }
             this.setCycvObjToLocal(obj);
         }
-        this.signIn = async (dispatch, userId, password, name, isNeedToApplySaveDataId = true) => {
+        this.signIn = async (dispatch, token, name, password) => {
             if (this.isUserSignIn()) {
-                let obj = this.getCycvObjInLocal();
-                const savesData = obj.user.savesData;
-                const current_saveDataId = obj.user.current_saveDataId;
-                const userId = obj.user.userId;
-                const password = obj.user.password;
-                const name = obj.user.name;
-                if (isNeedToApplySaveDataId) {
-                    this.applyUserId(dispatch, userId, password, name, current_saveDataId, savesData);
-                    return true;
+                const { password, name, savesData, current_saveDataId, token, userId } = this.getUserInLocal()
+                this.applyUserId(dispatch, token, password, name)
+                this.updateSavesDataInStore(dispatch, savesData)
+                if (current_saveDataId) {
+                    this.applySaveDataId(dispatch, current_saveDataId)
                 }
-                this.applyUserId(dispatch, userId, password, name, null, savesData);
-                return true;
+                return true
             }
-            if (!userId || !password || !name) {
-                Vars.showNotify(dispatch, "Some of your informations may not be rignt or... are just empty!", Vars.sadImg);
-                return;
-            }
-            const data = await this.fetchApi(this.urlGetSavesData(userId, password));
+
+            let obj = this.getCycvObjInLocal()
+            obj.user.token = token
+            this.setCycvObjToLocal(obj)
+            const data = await this.fetchApi(this.urlGetSavesData(token, password))
             if (data && data.messenger === "successfully!") {
-                this.applyUserId(dispatch, userId, password, name);
-                this.updateSavesDataInStore(dispatch, data.doc.savesData);
-                this.saveUserInfoToLocal(userId, password, name, data.doc.savesData);
-                return true;
+                this.applyUserId(dispatch, token, password, name)
+                this.updateSavesDataInStore(dispatch, data.doc.savesData)
+                this.saveUserInfoToLocal(token, password, name, data.doc.savesData)
+                return true
             }
-            return false;
+
+            return false
         }
         this.signOut = (dispatch, isNeedToClearUrl = true) => {
             // clear user in redux store
@@ -143,11 +141,8 @@ class Vars {
             }
             return false;
         }
-        this.isUserSignIn = (param_userId) => {
+        this.isUserSignIn = () => {
             if (this.getCycvObjInLocal().user.userId) {
-                if (param_userId && this.getUserInLocal().userId !== param_userId) {
-                    return false;
-                }
                 return true;
             }
             return false;
@@ -334,20 +329,20 @@ class Vars {
             }
             return `/${userId}`;
         }
-        this.urlRemoveSaveData = (userid = "605375c41fe11a29ecaa21fe", userpassword = "1234", saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
-            return `/api/remove-savedata/${userid}?password=${userpassword}&saveDataId=${saveDataId}`;
+        this.urlRemoveSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234", saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
+            return `/api/remove-savedata/${token}?password=${userpassword}&saveDataId=${saveDataId}`;
         }
-        this.urlAddSaveData = (userid = "605375c41fe11a29ecaa21fe", userpassword = "1234") => {
-            return `/api/add-savedata/${userid}?password=${userpassword}`;
+        this.urlAddSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234") => {
+            return `/api/add-savedata/${token}?password=${userpassword}`;
         }
-        this.urlUpdateSaveData = (userid = "605375c41fe11a29ecaa21fe", userpassword = "1234", saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
-            return `/api/update-savedata/${userid}?password=${userpassword}&saveDataId=${saveDataId}`;
+        this.urlUpdateSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234", saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
+            return `/api/update-savedata/${token}?password=${userpassword}&saveDataId=${saveDataId}`;
         }
-        this.urlGetSavesData = (userid = "605375c41fe11a29ecaa21fe", userpassword = "1234") => {
-            return `/api/get-savesdata/${userid}?password=${userpassword}`;
+        this.urlGetSavesData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234") => {
+            return `/api/get-savesdata/${token}?password=${userpassword}`;
         }
-        this.urlGetSpecifySaveData = (userid = "605375c41fe11a29ecaa21fe", saveDataId = "123") => {
-            return `/api/get-savesdata/${userid}?saveDataId=${saveDataId}`;
+        this.urlGetSpecifySaveData = (token = "605375c41fe11a29ecaa21fe", saveDataId = "123") => {
+            return `/api/get-savesdata/${token}?saveDataId=${saveDataId}`;
         }
         this.urlLogin = () => {
             return `/auth/login`;

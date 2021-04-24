@@ -38,15 +38,15 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
             const rawData = await Vars.fetchApi(Vars.urlCreateUser(), {
                 method: "POST",
                 data: (newUser)
-            });
+            })
             console.log(`signup.handleSubmit.rawData`, rawData)
             if (rawData && rawData.messenger === "successfully!") {
-                const { userId } = Vars.resolveToken(rawData.token);
-                Vars.closeModal(dispatch);
-                Vars.signIn(dispatch, userId, password, name);
-                Vars.showNotify(dispatch, `Created account ${rawData.messenger}`);
+                const token = rawData.token
+                Vars.closeModal(dispatch)
+                Vars.signIn(dispatch, token, name, password)
+                Vars.showNotify(dispatch, `Created account ${rawData.messenger}`)
                 // redirect route
-                route.push(Vars.url_userid(userId));
+                route.push(Vars.url_userid(token));
                 return;
             }
             Vars.showNotify(dispatch, `Some thing went wrong!`);

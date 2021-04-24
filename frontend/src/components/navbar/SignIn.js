@@ -38,18 +38,20 @@ const SignIn = ({ width, isModalShow, dispatch, className }) => {
                 method: "POST",
                 data: (currentUser)
             });
-            console.log(`signin.handleSubmit.rawData`, rawData)
             if (rawData && rawData.messenger === "successfully!") {
-                const { userId, name } = Vars.resolveToken(rawData.token);
-                Vars.closeModal(dispatch);
-                Vars.signIn(dispatch, userId, password, name);
-                Vars.showNotify(dispatch, `Sign in with account ${rawData.messenger}`);
+                const token = rawData.token
+                const name = rawData.name
+                console.log(`signin.handleSubmit.rawData`, rawData)
+                
+                Vars.closeModal(dispatch)
+                Vars.signIn(dispatch, token, name, password)
+                Vars.showNotify(dispatch, `Sign in with account ${rawData.messenger}`)
                 // redirect route
                 if (Vars.getUserInLocal().current_saveDataId) {
-                    route.push(Vars.url_userid_saveid(userId, Vars.Vars.getUserInLocal().current_saveDataId));
+                    route.push(Vars.url_userid_saveid(token, Vars.Vars.getUserInLocal().current_saveDataId));
                     return;
                 }
-                route.push(Vars.url_userid(userId));
+                route.push(Vars.url_userid(token));
                 return;
             }
             Vars.closeModal(dispatch);
