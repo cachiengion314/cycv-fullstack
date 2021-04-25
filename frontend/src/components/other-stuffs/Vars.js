@@ -741,6 +741,9 @@ class Vars {
     get FONT_SIZE_SUPER_BIG() {
         return "4.1rem";
     }
+    get ITEMS_PER_PAGE() {
+        return 8
+    }
     //////////////////
     // img section //
     //////////////////
