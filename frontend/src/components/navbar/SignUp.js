@@ -5,7 +5,6 @@ import Vars from '../other-stuffs/Vars';
 import Text from '../../custom-components/Text';
 import Button from '../../custom-components/Button';
 import { connect } from "react-redux";
-import useRoute from "../authenticate/useRoute";
 
 const Form = styled.form`
     width: ${props => props.width || "100%"};
@@ -15,7 +14,7 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
     const [userName, setUserName] = React.useState("");
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
-    const route = useRoute();
+    
 
     React.useEffect(() => {
         if (isModalShow) {
@@ -46,7 +45,7 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
                 Vars.signIn(dispatch, token, name, password)
                 Vars.showNotify(dispatch, `Created account ${rawData.messenger}`)
                 // redirect route
-                route.push(Vars.url_userid(token));
+            
                 return;
             }
             Vars.showNotify(dispatch, `Some thing went wrong!`);

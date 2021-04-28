@@ -6,7 +6,7 @@ import Text from '../../custom-components/Text';
 import Button from '../../custom-components/Button';
 import { connect } from "react-redux";
 import PropTypes from 'prop-types';
-import useRoute from "../authenticate/useRoute";
+
 
 const Form = styled.form`
     width: ${props => props.width || "100%"};
@@ -15,7 +15,7 @@ const Form = styled.form`
 const SignIn = ({ width, isModalShow, dispatch, className }) => {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
-    const route = useRoute();
+    
 
     React.useEffect(() => {
         if (isModalShow) {
@@ -46,12 +46,8 @@ const SignIn = ({ width, isModalShow, dispatch, className }) => {
                 Vars.closeModal(dispatch)
                 Vars.signIn(dispatch, token, name, password)
                 Vars.showNotify(dispatch, `Sign in with account ${rawData.messenger}`)
-                // redirect route
-                if (Vars.getUserInLocal().current_saveDataId) {
-                    route.push(Vars.url_userid_saveid(token, Vars.Vars.getUserInLocal().current_saveDataId));
-                    return;
-                }
-                route.push(Vars.url_userid(token));
+        
+                
                 return;
             }
             Vars.closeModal(dispatch);

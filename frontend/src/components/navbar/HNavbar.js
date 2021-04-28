@@ -6,7 +6,6 @@ import Vars from '../other-stuffs/Vars'
 import { connect } from "react-redux"
 import SignUp from './SignUp'
 import SignIn from './SignIn'
-import useRoute from "../authenticate/useRoute"
 
 const HNavbarStyled = styled.div`
     display: block;
@@ -56,8 +55,6 @@ const SingleNavBlock = ({ className, onClick, width, textLineHeight, content }) 
 }
 
 const HNavbar = ({ className, userId, name, dispatch, top, width, height }) => {
-    const route = useRoute()
-
     const handleMyCVClick = () => {
         Vars.redirectToHomePage();
     }
@@ -86,7 +83,7 @@ const HNavbar = ({ className, userId, name, dispatch, top, width, height }) => {
     }
 
     const handleShowCaseClick = () => {
-        route.push("/show-case")
+        
     }
 
     return (

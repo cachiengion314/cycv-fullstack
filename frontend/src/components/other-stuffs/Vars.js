@@ -1,12 +1,3 @@
-import ContactBlock from "../home-page/about-me/child-components/ContactBlock";
-import AboutBlock from "../home-page/about-me/child-components/AboutBlock";
-import HobbyBlock from "../home-page/about-me/child-components/HobbyBlock";
-import LocationBlock from "../home-page/about-me/child-components/LocationBlock";
-import EducationBlock from "../home-page/description/child-components/EducationBlock";
-import SkillBlock from "../home-page/description/child-components/SkillBlock";
-import ExpBlock from "../home-page/description/child-components/ExpBlock";
-import DescriptionComponent from "../home-page/description/DescriptionComponent";
-import AboutMeComponent from "../home-page/about-me/AboutMeComponent";
 import produce from "immer";
 import axios from "../../api"
 
@@ -234,68 +225,6 @@ class Vars {
             const searchConponent = higherComponent.find(component => component._id === CONPONENT_ID);
             const indexOfSearchComponent = higherComponent.indexOf(searchConponent);
             return indexOfSearchComponent;
-        }
-        //////////////////
-        // reserve function section //
-        //////////////////
-        this.getFunctionFrom = (functionName) => {
-            switch (functionName) {
-                case this.CONTACT_BLOCK_FUNCTION:
-                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
-                        return (
-                            <ContactBlock _id={this._id} key={this._id} image={this.image} firstContent={this.firstContent} secondContent={this.secondContent} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
-                        )
-                    }
-                case this.ABOUT_BLOCK_FUNCTION:
-                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
-                        return (
-                            <AboutBlock _id={this._id} key={this._id} content={this.content} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
-                        )
-                    }
-                case this.HOBBY_BLOCK_FUNCTION:
-                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
-                        return (
-                            <HobbyBlock _id={this._id} key={this._id} image={this.image} content={this.content} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
-                        )
-                    }
-                case this.LOCATION_BLOCK_FUNCTION:
-                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-4") {
-                        return (
-                            <LocationBlock _id={this._id} key={this._id} latitude={this.latitude} longitude={this.longitude} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
-                        )
-                    }
-                case this.ABOUTME_COMPONENT_FUNCTION:
-                    return function (width = "100%", className = "mb-3") {
-                        return (
-                            <AboutMeComponent _id={this._id} key={this._id} width={width} className={className} />
-                        )
-                    }
-
-                case this.EDUCATION_BLOCK_FUNCTION:
-                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
-                        return (
-                            <EducationBlock _id={this._id} key={this._id} width="100%" degreeName={this.degreeName} universityName={this.universityName} year={this.year} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
-                        )
-                    }
-                case this.SKILL_BLOCK_FUNCTION:
-                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
-                        return (
-                            <SkillBlock _id={this._id} key={this._id} percent={this.percent} content={this.content} subContent={this.subContent} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} width={this.width} className={className} />
-                        )
-                    }
-                case this.EXP_BLOCK_FUNCTION:
-                    return function (isHide, dispatch, indexOfHigherComponent, width = "100%", className = "mb-3") {
-                        return (
-                            <ExpBlock _id={this._id} key={this._id} jobPosition={this.jobPosition} companyInfo={this.companyInfo} years={this.years} moreInfo={this.moreInfo} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} width={width} className={className} />
-                        )
-                    }
-                case this.DESCRIPTION_COMPONENT_FUNCTION:
-                    return function (width = "100%", className = "mb-3") {
-                        return (
-                            <DescriptionComponent _id={this._id} key={this._id} width={width} className={className} />
-                        )
-                    }
-            }
         }
         //////////////////
         // api section //
