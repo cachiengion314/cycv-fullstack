@@ -1,24 +1,33 @@
-.Navbar{
+.Navbar {
   /* background-color:aquamarine; */
   font-family: Nunito;
 }
-.in-up{
+
+.in-up {
   margin-right: 20px;
   font-size: larger;
   font-weight: bold;
   font-family: Nunito;
 }
-.container{
+
+.container {
   display: flex;
-  justify-content: space-between;
+  justify-content:space-around;
   align-items: center;
 }
-.image{
+
+.image {
   height: 500px;
   width: 500px;
 }
-.margin{
+
+.margin {
   margin-left: 20px;
   font-weight: bold;
   font-size: larger;
+}
+
+.sreach {
+  display: flex;
+  justify-content: center;
 }
