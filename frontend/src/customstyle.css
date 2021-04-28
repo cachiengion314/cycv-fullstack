@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Brygada+1918:wght@400;500;600;700&display=swap');
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 1.5vmax;
+}
+
+body {
+    font-family: 'Brygada 1918', serif;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.align-center {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+}
+
+.align-h-center {
+    display: flex !important;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.align-v-center {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+}
+
+.root-container {
+    width: 100vw;
+    height: fit-content;
+    display: flex;
+}
+
+.left-container {
+    width: 5%;
+    display: inherit;
+}
+
+.center-container {
+    width: 90%;
+    display: inherit;
+}
+
+.right-container {
+    width: 5%;
+    display: inherit;
+}
+
+.custom-btn {
+    display: block;
+    border: black 1px solid;
+    outline-width: 0px;
+    background-color: inherit;
+    border-radius: .5rem;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.custom-input {
+    border: darkcyan 1px solid;
+    border-radius: .5rem;
+    color: darkcyan !important;
+}
+
+.custom-input:focus {
+    color: darkcyan;
+    background-color: white;
+    border-color: darkcyan;
+    outline: none;
+    box-shadow: none;
+}
+
+::placeholder {
+    color: black !important;
+    opacity: .5 !important;
+}
+
+.custom-btn:disabled {
+    background-color: #f1f1f1;
+    color: darkcyan;
+}
+
+.custom-btn:hover:enabled {
+    background-color: #f7f7e2;
+    color: darkcyan;
+}
+
+.custom-btn:active {
+    background-color: #e2ffe4;
+    color: darkcyan;
+}
+
+.fs-sm {
+    font-size: 1.3rem;
+}
+
+.fs-md {
+    font-size: 1.6rem;
+}
+
+.fs-big {
+    font-size: 2.1rem;
+}
+
+.darkcyan {
+    color: darkcyan !important;
+}
