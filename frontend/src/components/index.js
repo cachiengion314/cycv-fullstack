@@ -11,7 +11,6 @@ import ModalNotify from "./modal/ModalNotify"
 import ModalOption from "./modal/ModalOption"
 import ModalCustom from "./modal/ModalCustom"
 import MyCvPage from "./mycv-page"
-import NotFound404Page from "./notfound-404page"
 import ShowCasePage from "./showcase-page"
 
 function App() {
@@ -26,7 +25,6 @@ function App() {
           <Route exact path="/" children={<MyCvPage dispatch={store.dispatch} />} />
           <Route exact path="/show-case" children={<ShowCasePage dispatch={store.dispatch} />} />
           <Route path="/:id" children={<MyCvPage dispatch={store.dispatch} />} />
-          <Route path="/*" children={<NotFound404Page />} />
         </Switch>
       </Router>
     </Provider>
