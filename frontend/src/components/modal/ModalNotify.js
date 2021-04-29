@@ -40,6 +40,7 @@ const ModalNotify = ({ isModalShow, title, dispatch, content, yesAction, noActio
             onTimeout();
             return;
         }
+        // eslint-disable-next-line
     }, [isModalShow, title]);
 
     return (

@@ -12,6 +12,8 @@ import ModalOption from "./modal/ModalOption"
 import ModalCustom from "./modal/ModalCustom"
 import MyCvPage from "./mycv-page"
 import ShowCasePage from "./showcase-page"
+import AboutUs from './about-us'
+import Block from "../custom-components/Block";
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
           <Route path="/:id" children={<MyCvPage dispatch={store.dispatch} />} />
         </Switch>
       </Router>
+      <Block width="100%" height="1px" background="darkblue" className="mt-5"></Block>
+      <AboutUs className="mt-5" />
     </Provider>
   );
 }

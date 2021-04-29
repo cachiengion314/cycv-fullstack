@@ -46,6 +46,7 @@ const MyCvPage = ({ width, dispatch, className }) => {
 
     React.useEffect(() => {
         controlStatus()
+        // eslint-disable-next-line
     }, [])
 
     return (

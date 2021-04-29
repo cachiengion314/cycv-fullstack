@@ -20,7 +20,9 @@ const UserCvThumpnail = ({ width, createdBy, fileName, className }) => {
         return givenContent.length < 13 ? givenContent : STR_splitSpace(givenContent);
     }
 
-    createdBy = React.useMemo(() => calculateSplitSpaceFor(createdBy), [])
+    createdBy = React.useMemo(() => calculateSplitSpaceFor(createdBy),
+    // eslint-disable-next-line
+    [])
 
     return (
         <Block width={width} padding="1rem" borderRadius=".5rem" border="1px solid darkblue" className={className}>

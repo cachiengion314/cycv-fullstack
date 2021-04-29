@@ -38,7 +38,7 @@ const Description = ({ className, width, isHide, Description, smallWidthBar }) =
             render: Vars.DESCRIPTION_COMPONENT_FUNCTION,
         },
     ]
-    
+
     const handleAddComponentBtn = (dispatch, component) => () => {
         const addedIdComponent = produce(component, draft => {
             if (!component._id) {
@@ -57,16 +57,14 @@ const Description = ({ className, width, isHide, Description, smallWidthBar }) =
                 </Block>
             }
             {
-                React.useMemo(() =>
-                    Description.map((component) => {
-                        const renderableComponent = produce(component, draft => {
-                            draft.render = Vars.getFunctionFrom(component.render);
-                        });
-                        return (
-                            renderableComponent.render()
-                        )
-                    })
-                )
+                Description.map((component) => {
+                    const renderableComponent = produce(component, draft => {
+                        draft.render = Vars.getFunctionFrom(component.render);
+                    });
+                    return (
+                        renderableComponent.render()
+                    )
+                })
             }
             <DropDown
                 sectionObj={Vars.descriptionObj} widthMenu="12rem"

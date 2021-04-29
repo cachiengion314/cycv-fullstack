@@ -105,16 +105,14 @@ const AboutMeComponent = ({ _id, width, className, isHide, AboutMe, dispatch }) 
             </Block>
             <Block width="100%" flexbox={true} className={"align-h-center"}>
                 {
-                    React.useMemo(() =>
-                        this_child_components.map((component) => {
-                            const renderableComponent = produce(component, draft => {
-                                draft.render = Vars.getFunctionFrom(component.render);
-                            });
-                            return (
-                                renderableComponent.render(isHide, dispatch, indexOfThisComponent)
-                            )
-                        })
-                    )
+                    this_child_components.map((component) => {
+                        const renderableComponent = produce(component, draft => {
+                            draft.render = Vars.getFunctionFrom(component.render);
+                        });
+                        return (
+                            renderableComponent.render(isHide, dispatch, indexOfThisComponent)
+                        )
+                    })
                 }
             </Block>
         </Block>

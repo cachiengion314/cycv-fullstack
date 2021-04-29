@@ -45,6 +45,7 @@ const DropDown = ({ dispatch, isHide, availableComponents, handleClickInComponen
         return () => {
             window.removeEventListener(`click`, handleAddBtn);
         }
+        // eslint-disable-next-line
     }, []);
 
     return (

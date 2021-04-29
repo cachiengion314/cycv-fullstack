@@ -103,16 +103,14 @@ const DescriptionComponent = ({ _id, className, isHide, width, Description, disp
 
             <Block width="100%" flexbox={true}>
                 {
-                    React.useMemo(() =>
-                        this_component_childs.map((component) => {
-                            const renderableComponent = produce(component, draft => {
-                                draft.render = Vars.getFunctionFrom(component.render);
-                            });
-                            return (
-                                renderableComponent.render(isHide, dispatch, indexOfThisComponent)
-                            )
-                        })
-                    )
+                    this_component_childs.map((component) => {
+                        const renderableComponent = produce(component, draft => {
+                            draft.render = Vars.getFunctionFrom(component.render);
+                        });
+                        return (
+                            renderableComponent.render(isHide, dispatch, indexOfThisComponent)
+                        )
+                    })
                 }
             </Block>
         </Block>

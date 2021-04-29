@@ -7,7 +7,6 @@ import { connect } from "react-redux";
 import { produce } from "immer";
 import Utility from '../../../custom-components/Utility';
 import EditableAvatar from '../../other-stuffs/EditableAvatar';
-import AboutMeComponent from './AboutMeComponent';
 
 const AvatarBlock = styled(Block)`
     position: relative;
@@ -95,17 +94,15 @@ const AboutMe = ({ dispatch, AboutMe, isHide, className, border, borderRadius, w
                 />
             </AvatarBlock>
             {
-                React.useMemo(() =>
-                    AboutMe.map(component => {
-                        if (component.name === `UserAvatar`) return false;
-                        const renderableComponent = produce(component, draft => {
-                            draft.render = Vars.getFunctionFrom(component.render);
-                        });
-                        return (
-                            renderableComponent.render()
-                        )
-                    })
-                )
+                AboutMe.map(component => {
+                    if (component.name === `UserAvatar`) return false;
+                    const renderableComponent = produce(component, draft => {
+                        draft.render = Vars.getFunctionFrom(component.render);
+                    });
+                    return (
+                        renderableComponent.render()
+                    )
+                })
             }
             <DropDown
                 widthMenu="12rem" btnName="Add Component" isHide={isHide}
