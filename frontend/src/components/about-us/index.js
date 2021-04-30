@@ -20,7 +20,7 @@ const index = ({ className }) => {
           </p>
         </div>
         <div>
-          <img src={image} className="image me-3"></img>
+          <img src={image} className="image me-3" alt="about-us"></img>
         </div>
         <div>
           <p className="about-us-text">

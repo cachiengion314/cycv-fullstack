@@ -55,11 +55,142 @@ exports.weather = async (request, response) => {
     response.json(finalData);
 }
 //
-// /api/remove-savedata/:id
+// /api/get-all-savefile-showcase
+//
+exports.getAllSaveFileShowCase = (request, response) => {
+    Model.cycShowCaseSaveFile.find(
+        {
+            isPublic: true
+        }
+    )
+        .populate({
+            path: "createdBy",
+            select: "email"
+        })
+        .exec(function (err, docs) {
+            if (!err) {
+                response.send({ docs, messenger: "successfully!" })
+                return
+            }
+            if (err) {
+                console.log(`messenger`, err)
+                response.status(404).send({ messenger: "your info are so wrong!" })
+                return
+            }
+            console.log(`Can't find anything`)
+            response.send({ messenger: "Can't find anything" })
+        })
+}
+//
+// /api/get-all-savefile-showcase-of-user
+//
+exports.getAllSaveFileShowCaseOfUser = (request, response) => {
+    const userId = request.user._id
+
+    Model.cycShowCaseSaveFile.find(
+        {
+            "createdBy": userId
+        }
+    )
+        .populate({
+            path: "createdBy",
+            select: "email"
+        })
+        .exec(function (err, docs) {
+            if (!err) {
+                response.send({ docs, messenger: "successfully!" })
+                return
+            }
+            if (err) {
+                console.log(`messenger`, err)
+                response.status(404).send({ messenger: "your info are so wrong!" })
+                return
+            }
+            console.log(`Can't find anything`)
+            response.send({ messenger: "Can't find anything" })
+        })
+}
+//
+// /api/remove-savefile-showcase
+//
+exports.removeSaveFileShowCase = (request, response) => {
+    const { savefileId } = request.query
+
+    Model.cycShowCaseSaveFile.findOneAndDelete(
+        {
+            _id: ObjectId(savefileId),
+        },
+        function (err, doc) {
+            if (!err) {
+                response.send({ doc, messenger: "successfully!" });
+                return;
+            }
+            if (err) {
+                console.log(`messenger`, err)
+                response.status(404).send({ messenger: "your info are so wrong!" });
+                return;
+            }
+            console.log(`Can't find anything due to invalid password or id!`)
+            response.send({ messenger: "Can't find anything due to invalid password or id!" })
+        })
+}
+//
+// /api/update-savefile-showcase
+//
+exports.updateSaveFileShowCase = (request, response) => {
+    const { data, isPublic, name } = request.body
+    const { savefileId } = request.query
+
+    Model.cycShowCaseSaveFile.findOneAndUpdate(
+        {
+            _id: ObjectId(savefileId),
+        },
+        {
+            $set: {
+                data,
+                isPublic,
+                name
+            }
+        }, { new: true },
+        function (err, doc) {
+            if (!err) {
+                response.send({ messenger: "successfully!" });
+                return;
+            }
+            if (err) {
+                console.log(`messenger`, err)
+                response.status(404).send({ messenger: "your info are so wrong!" });
+                return;
+            }
+            console.log(`Can't find anything due to invalid password or id!`)
+            response.send({ messenger: "Can't find anything due to invalid password or id!" })
+        })
+}
+//
+// /api/add-savefile-showcase
+//
+exports.addSaveFileToShowCase = (request, response) => {
+    const id = request.user._id
+    const saveData = request.body
+
+    Model.cycShowCaseSaveFile.create({ ...saveData, createdBy: id }, function (err, doc) {
+        if (err) {
+            response.send({ messenger: err })
+            return
+        }
+        response.send({ doc, messenger: "successfully!" })
+    })
+}
+//
+// @Old-api
+//
+
+//
+// /api/remove-savedata/:token
 //
 exports.removeSaveData = (request, response) => {
     const id = request.user._id
-    const { saveDataId, password } = request.query;
+    const { saveDataId } = request.query;
 
     Model.cycvuser.findOneAndUpdate(
         {
@@ -79,7 +210,7 @@ exports.removeSaveData = (request, response) => {
             }
             if (err) {
                 console.log(`messenger`, err)
-                response.status(404).send({ messenger: "your info is so wrong!" });
+                response.status(404).send({ messenger: "your info are so wrong!" });
                 return;
             }
             console.log(`Can't find anything due to invalid password or id!`)
@@ -87,11 +218,11 @@ exports.removeSaveData = (request, response) => {
         })
 }
 //
-// /api/update-savedata/:id
+// /api/update-savedata/:token
 //
 exports.updateSaveData = (request, response) => {
     const id = request.user._id
-    const { saveDataId, password } = request.query
+    const { saveDataId } = request.query
     const saveData = request.body
     if (!request.body) {
         response.status(404).send({ messenger: "content cannot be empty!" })
@@ -115,7 +246,7 @@ exports.updateSaveData = (request, response) => {
             }
             if (err) {
                 console.log(`err`, err)
-                response.status(404).send({ messenger: "your info is so wrong!" })
+                response.status(404).send({ messenger: "your info are so wrong!" })
                 return;
             }
             console.log(`Can't find anything due to invalid password or id!`)
@@ -123,11 +254,10 @@ exports.updateSaveData = (request, response) => {
         })
 }
 //
-// /api/add-savedata/:id
+// /api/add-savedata/:token
 //
 exports.addSaveData = (request, response) => {
     const id = request.user._id
-    const { password } = request.query;
     const saveData = request.body;
     if (!request.body) {
         response.status(404).send({ messenger: "content cannot be empty!" });
@@ -155,7 +285,7 @@ exports.addSaveData = (request, response) => {
             }
             if (err) {
                 console.log(`err`, err)
-                response.status(404).send({ messenger: "your info is so wrong!" });
+                response.status(404).send({ messenger: "your info are so wrong!" });
                 return;
             }
             console.log(`Can't find anything due to invalid password or id!`)
@@ -177,7 +307,7 @@ exports.getSavesData = async (request, response) => {
                 });
         } catch (err) {
             console.log(`err`, err)
-            response.status(404).send({ messenger: "your info is so wrong!" })
+            response.status(404).send({ messenger: "your info are so wrong!" })
             return;
         }
         if (doc) {
@@ -216,7 +346,7 @@ exports.getSavesData = async (request, response) => {
             );
         } catch (err) {
             console.log(`err`, err)
-            response.status(404).send({ messenger: "your query is so wrong!" })
+            response.status(404).send({ messenger: "your query are so wrong!" })
             return;
         }
         console.log(`doc`, doc[0])
