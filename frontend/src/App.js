@@ -6,8 +6,8 @@ import AboutUs from "./components/about-us/index"
 function App() {
   return (
     <div className="App">
-      {/* <SignUp/> */}
-     <AboutUs/>
+      <SignUp/>
+     {/* <AboutUs/> */}
     </div>
   );  
 }
