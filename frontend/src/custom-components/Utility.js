@@ -12,6 +12,7 @@ class Utility {
         this.getPropsNameFrom = (obj) => {
             let iteratorData = Object.entries(obj);
             let propsName = [];
+            // eslint-disable-next-line
             for (let [key, value] of iteratorData) {
                 propsName.push(key);
             }

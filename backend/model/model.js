@@ -22,18 +22,9 @@ const CycUserSchema = new Schema({
 }, { timestamps: true })
 
 const CycShowCaseSaveFile = new Schema({
-    data: {
+    saveData: {
         type: Object,
         required: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    isPublic: {
-        type: Boolean,
-        required: true,
-        default: true
     },
     createdBy: {
         type: ObjectId,

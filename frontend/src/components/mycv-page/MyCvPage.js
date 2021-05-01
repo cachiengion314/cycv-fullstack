@@ -12,11 +12,11 @@ const MyCvPage = ({ width, dispatch, className }) => {
 
     const controlStatus = async () => {
         if (Vars.isUserSignIn()) {
-            if (id && saveDataIdQuery && !Vars.isOwnerOfUserId_saveDataId(id, saveDataIdQuery)) {
-                const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, id, saveDataIdQuery)
+            if (id && saveDataIdQuery && !Vars.isOwnerOfUserName_saveDataId(id, saveDataIdQuery)) {
+                const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
                 if (!isSuccess) {
                     Vars.signIn(dispatch)
-                    route.push(Vars.url_userid_saveid())
+                    route.push(Vars.url_username_saveid())
                     return
                 }
                 Vars.signIn(dispatch, null, null, null, false)
@@ -24,16 +24,16 @@ const MyCvPage = ({ width, dispatch, className }) => {
             }
             if (Vars.getUserInLocal().current_saveDataId) {
                 Vars.signIn(dispatch);
-                route.push(Vars.url_userid_saveid())
+                route.push(Vars.url_username_saveid())
                 return;
             }
             Vars.signIn(dispatch)
-            route.push(Vars.url_userid())
+            route.push(Vars.url_username())
             return;
         }
 
         if (id && saveDataIdQuery) {
-            const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, id, saveDataIdQuery)
+            const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
             if (!isSuccess) {
                 route.push("/")
                 return

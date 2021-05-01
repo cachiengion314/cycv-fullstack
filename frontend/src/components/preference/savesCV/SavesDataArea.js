@@ -37,32 +37,32 @@ const FloatButton = styled(Button)`
 `;
 
 const SavesDataArea = ({ width, savesData, userId, password, current_saveDataId, name, dispatch, className }) => {
-    const route = useRoute();
+    const route = useRoute()
 
     const handleRemove = (e) => {
         const this_saveDataId = e.target.parentNode.parentNode.id;
         if (current_saveDataId === this_saveDataId) {
-            Vars.showNotify(dispatch, "You can't not remove this file since you are opening it already!", Vars.sadImg);
-            return;
+            Vars.showNotify(dispatch, "You can't not remove this file since you are opening it already!", Vars.sadImg)
+            return
         }
         Vars.showYesNo(dispatch, `Do you really want to remove this save file?`, () => {
             Vars.showLoading(dispatch, `Please wait!`, async () => {
-                let rawData = await Vars.fetchApi(Vars.urlRemoveSaveData(userId, password, this_saveDataId), {
+                let rawData = await Vars.fetchApi(Vars.urlRemoveSaveData(this_saveDataId), {
                     method: 'DELETE',
-                });
+                })
                 if (rawData && rawData.messenger === "successfully!") {
-                    Vars.showNotify(dispatch, `Remove completed!`);
+                    Vars.showNotify(dispatch, `Remove completed!`)
                     // update the removal into redux store
                     const updatedSavesData = Vars.removeSaveDataInSavesData(savesData, this_saveDataId)
-                    Vars.updateSavesDataInStore(dispatch, updatedSavesData);
+                    Vars.updateSavesDataInStore(dispatch, updatedSavesData)
                     // save to local
                     Vars.saveUserInfoToLocal(userId, password, name, updatedSavesData, current_saveDataId);
                     return;
                 }
-                Vars.showNotify(dispatch, "Something went wrong!", Vars.sadImg);
+                Vars.showNotify(dispatch, "Something went wrong!", Vars.sadImg)
                 console.log(`responseData:`, rawData)
-            }, 800);
-        });
+            }, 800)
+        })
     }
 
     const handleOpen = (e) => {
@@ -73,13 +73,13 @@ const SavesDataArea = ({ width, savesData, userId, password, current_saveDataId,
         }
         Vars.showYesNo(dispatch, `Do you want to open this file?`, () => {
             // apply the new saveDataId into redux store
-            Vars.applySaveDataId(dispatch, this_saveDataId);
+            Vars.applySaveDataId(dispatch, this_saveDataId)
             // save to local
-            Vars.saveUserInfoToLocal(userId, password, name, savesData, this_saveDataId);
-            Vars.closeModal(dispatch);
+            Vars.saveUserInfoToLocal(userId, password, name, savesData, this_saveDataId)
+            Vars.closeModal(dispatch)
             // redirect route
-            // route.push(`${userId}?saveDataId=${this_saveDataId}`);
-            route.push(Vars.url_userid_saveid(userId, this_saveDataId));
+            // route.push(`${userId}?saveDataId=${this_saveDataId}`)
+            route.push(Vars.url_username_saveid(name, this_saveDataId))
         });
     }
 
@@ -93,13 +93,13 @@ const SavesDataArea = ({ width, savesData, userId, password, current_saveDataId,
         <SavesDataBlock zIndex="0" width={width} className={className}>
             {
                 savesData.map(singleSave => {
-                    const { saveData, _createdDate, _saveDataId } = singleSave;
+                    const { saveData, createdAt, _id } = singleSave;
                     return (
-                        <SingleSaveBlockModified id={_saveDataId} key={_saveDataId} width="100%" border="1px solid darkblue" borderRadius=".5rem" className="mb-2">
+                        <SingleSaveBlockModified id={_id} key={_id} width="100%" border="1px solid darkblue" borderRadius=".5rem" className="mb-2">
                             <Avatar width="7%" zIndex="2" src={Vars.mailImg} className="me-3 float-start" />
                             <EditableText width="35%" zIndex="2" textAlign="left" fontSize={Vars.FONT_SIZE_SM} className="float-start" readOnly value={saveData.name} />
                             <EditableText width="6%" zIndex="2" onClick={handleRemove} fontSize={Vars.FONT_SIZE_MD} readOnly value="X" className={"float-end custom-btn"} />
-                            <EditableText width="18%" zIndex="2" fontSize={Vars.FONT_SIZE_SM} className="float-end me-3" readOnly value={_createdDate.split("T")[0]} />
+                            <EditableText width="18%" zIndex="2" fontSize={Vars.FONT_SIZE_SM} className="float-end me-3" readOnly value={createdAt.split("T")[0]} />
                             <FloatButton zIndex="1" onClick={handleOpen}></FloatButton>
                         </SingleSaveBlockModified>
                     )

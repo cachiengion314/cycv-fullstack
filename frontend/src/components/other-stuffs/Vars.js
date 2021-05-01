@@ -33,50 +33,35 @@ class Vars {
             const isPasswordInputValid = this.checkPasswordInput(password_input);
             if (!isEmailInputValid) {
                 this.showNotify(dispatch, `You need to check your email again! There must be one digit atleast or your providing are probably fake!`, this.boringImg);
-                return false;
+                return false
             }
             if (!isPasswordInputValid) {
                 this.showNotify(dispatch, `Check your password again! There must be one digit and one uppercase atleast or your password will not strong enough!`, this.angryImg);
-                return false;
+                return false
             }
-            return true;
+            return true
         }
         this.checkPasswordInput = (password_input) => {
-            let checkPassword_1_regexp = /^\w/i;
-            let checkPassword_2_regexp = /\p{Nd}/u;
-            let checkPassword_3_regexp = /\p{Lu}/u;
-            let checkPassword_4_regexp = /.{6,}/g;
-            let result1 = checkPassword_1_regexp.test(password_input);
-            let result2 = checkPassword_2_regexp.test(password_input);
-            let result3 = checkPassword_3_regexp.test(password_input);
-            let result4 = checkPassword_4_regexp.test(password_input);
-            if (result1 && result2 && result3 && result4) {
+            if (/^\S{3,}/.test(password_input)) {
                 return true;
             }
-            return false;
+            return false
         }
         this.checkEmailInput = (email_input) => {
-            let checkemail_1_regexp = /^\w/i;
-            let checkemail_2_regexp = /.com$/;
-            let checkemail_3_regexp = /\p{Nd}/u;
-            let checkemail_4_regexp = /\@.+/;
-            let result1 = checkemail_1_regexp.test(email_input);
-            let result2 = checkemail_2_regexp.test(email_input);
-            let result3 = checkemail_3_regexp.test(email_input);
-            let result4 = checkemail_4_regexp.test(email_input);
-            if (result1 && result2 && result3 && result4) {
-                return true;
+            let result1 = /^[a-z]\S+@\S+/.test(email_input);
+            if (result1) {
+                return true
             }
-            return false;
+            return false
         }
         this.resolveToken = (token = "token-token") => {
-            const userinfoArr = token.split("-");
-            const userId = userinfoArr[0];
-            const name = userinfoArr[1];
+            const userinfoArr = token.split("-")
+            const userId = userinfoArr[0]
+            const name = userinfoArr[1]
             return { userId, name }
         }
         this.saveUserInfoToLocal = (userId, password, name, savesData, current_saveDataId) => {
-            let obj = this.getCycvObjInLocal();
+            let obj = this.getCycvObjInLocal()
             obj.user.userId = userId
             obj.user.password = password
             obj.user.name = name
@@ -89,7 +74,7 @@ class Vars {
         }
         this.signIn = async (dispatch, token, name, password) => {
             if (this.isUserSignIn()) {
-                const { password, name, savesData, current_saveDataId, token, userId } = this.getUserInLocal()
+                const { password, name, savesData, current_saveDataId, token } = this.getUserInLocal()
                 this.applyUserId(dispatch, token, password, name)
                 this.updateSavesDataInStore(dispatch, savesData)
                 if (current_saveDataId) {
@@ -101,11 +86,11 @@ class Vars {
             let obj = this.getCycvObjInLocal()
             obj.user.token = token
             this.setCycvObjToLocal(obj)
-            const data = await this.fetchApi(this.urlGetSavesData(token, password))
+            const data = await this.fetchApi(this.urlGetSavesData())
             if (data && data.messenger === "successfully!") {
                 this.applyUserId(dispatch, token, password, name)
-                this.updateSavesDataInStore(dispatch, data.doc.savesData)
-                this.saveUserInfoToLocal(token, password, name, data.doc.savesData)
+                this.updateSavesDataInStore(dispatch, data.docs)
+                this.saveUserInfoToLocal(token, password, name, data.docs)
                 return true
             }
 
@@ -113,18 +98,18 @@ class Vars {
         }
         this.signOut = (dispatch, isNeedToClearUrl = true) => {
             // clear user in redux store
-            this.clearUserSectionInStore(dispatch);
+            this.clearUserSectionInStore(dispatch)
             // clear in local
-            this.setCycvObjToLocal(cycv_objDefault);
+            this.setCycvObjToLocal(cycv_objDefault)
             // clear homePage in redux store
-            this.clearHomepage(dispatch);
+            this.clearHomepage(dispatch)
             // reload
             if (isNeedToClearUrl) {
-                this.redirectToHomePage();
+                this.redirectToHomePage()
             }
         }
-        this.fetch_applyTemperSaveData = async (dispatch, userId, saveDataId) => {
-            let rawData = await this.fetchApi(this.urlGetSpecifySaveData(userId, saveDataId));
+        this.fetch_applyTemperSaveData = async (dispatch, saveDataId) => {
+            let rawData = await this.fetchApi(this.urlGetSpecifySaveData(saveDataId));
             console.log(`applySampleSaveData.rawData`, rawData)
             if (rawData && rawData.messenger === "successfully!") {
                 this.applyTemperSaveData(dispatch, rawData.doc.saveData);
@@ -132,11 +117,11 @@ class Vars {
             }
             return false;
         }
-        this.isOwnerOfUserId_saveDataId = (userId, saveDataId) => {
+        this.isOwnerOfUserName_saveDataId = (name, saveDataId) => {
             const user = this.getUserInLocal();
-            const _userId = user.userId;
+            const _name = user.name;
             const _saveDataId = user.current_saveDataId;
-            if (_userId === userId && _saveDataId === saveDataId) {
+            if (_name === name && _saveDataId === saveDataId) {
                 return true;
             }
             return false;
@@ -148,54 +133,54 @@ class Vars {
             return false;
         }
         this.getUserInLocal = () => {
-            return this.getCycvObjInLocal().user;
+            return this.getCycvObjInLocal().user
         }
         this.setCycvObjToLocal = (obj) => {
             if (!localStorage.getItem(this.KEY_CYCV_OBJ)) {
-                localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(cycv_objDefault));
+                localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(cycv_objDefault))
             }
-            localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(obj));
+            localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(obj))
         }
         this.getCycvObjInLocal = () => {
             if (!localStorage.getItem(this.KEY_CYCV_OBJ)) {
-                localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(cycv_objDefault));
+                localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(cycv_objDefault))
             }
-            return JSON.parse(localStorage.getItem(this.KEY_CYCV_OBJ));
+            return JSON.parse(localStorage.getItem(this.KEY_CYCV_OBJ))
         }
         //////////////////
         // utility section //
         //////////////////
         this.removeSaveDataInSavesData = (savesData, removedSaveDataId) => {
             return produce(savesData, draft => {
-                let _index = savesData.findIndex(elt => elt._saveDataId === removedSaveDataId);
-                draft.splice(_index, 1);
-            });
+                let _index = savesData.findIndex(elt => elt._id === removedSaveDataId)
+                draft.splice(_index, 1)
+            })
         }
         this.addNewSaveDataToSavesData = (savesData, saveData) => {
             return produce(savesData, draft => {
-                draft.push(saveData);
-            });
+                draft.push(saveData)
+            })
         }
         this.updateCurrentSavesData = (currentSaveData, savesData, newSaveData) => {
-            const { homePage, preference } = newSaveData;
+            const { homePage, preference } = newSaveData
             const modifiedSaveData = produce(currentSaveData, draft => {
-                draft.homePage = homePage;
-                draft.preference = preference;
-            });
+                draft.homePage = homePage
+                draft.preference = preference
+            })
             const modifiedSavesData = produce(savesData, draft => {
-                const indexOfCurrentSaveData = savesData.findIndex(elt => elt._saveDataId === currentSaveData._saveDataId);
-                draft[indexOfCurrentSaveData].saveData.homePage = modifiedSaveData.homePage;
-                draft[indexOfCurrentSaveData].saveData.preference = modifiedSaveData.preference;
-            });
-            return modifiedSavesData;
+                const indexOfCurrentSaveData = savesData.findIndex(elt => elt._id === currentSaveData._id)
+                draft[indexOfCurrentSaveData].saveData.homePage = modifiedSaveData.homePage
+                draft[indexOfCurrentSaveData].saveData.preference = modifiedSaveData.preference
+            })
+            return modifiedSavesData
         }
         this.findCurrentSaveData = (current_saveDataId, savesData) => {
             let currentSaveData;
             if (savesData && current_saveDataId) {
-                currentSaveData = savesData.find(savefile => savefile._saveDataId === current_saveDataId);
+                currentSaveData = savesData.find(savefile => savefile._id === current_saveDataId)
             }
             if (currentSaveData) {
-                return currentSaveData;
+                return currentSaveData
             }
             return null;
         }
@@ -221,19 +206,19 @@ class Vars {
         }
         //////////////////
         this.calculatePartsIn = (ADDRESS = "homePage/") => {
-            let partsArr = ADDRESS.split(`/`);
+            let partsArr = ADDRESS.split(`/`)
             partsArr = partsArr.map(elt => {
                 if (!isNaN(Number(elt))) {
-                    return Number(elt);
+                    return Number(elt)
                 }
-                return elt;
+                return elt
             });
-            return partsArr;
+            return partsArr
         }
         this.findIndexOfComponentIn = (higherComponent, CONPONENT_ID) => {
-            const searchConponent = higherComponent.find(component => component._id === CONPONENT_ID);
-            const indexOfSearchComponent = higherComponent.indexOf(searchConponent);
-            return indexOfSearchComponent;
+            const searchConponent = higherComponent.find(component => component._id === CONPONENT_ID)
+            const indexOfSearchComponent = higherComponent.indexOf(searchConponent)
+            return indexOfSearchComponent
         }
         //////////////////
         // reserve function section //
@@ -301,7 +286,7 @@ class Vars {
         // api section //
         //////////////////
         this.redirectToHomePage = () => {
-            window.location.replace("/");
+            window.location.replace("/")
         }
         this.fetchApi = async (url, option = { method: "GET" }) => {
             try {
@@ -317,38 +302,38 @@ class Vars {
                 return false
             }
         }
-        this.url_userid_saveid = (userId, saveDataId) => {
-            if (!userId && !saveDataId) {
-                return `/${this.getUserInLocal().userId}?saveDataId=${this.getUserInLocal().current_saveDataId}`;
+        this.url_username_saveid = (name, saveDataId) => {
+            if (!name && !saveDataId) {
+                return `/${this.getUserInLocal().name}?saveDataId=${this.getUserInLocal().current_saveDataId}`
             }
-            return `/${userId}?saveDataId=${saveDataId}`;
+            return `/${name}?saveDataId=${saveDataId}`
         }
-        this.url_userid = (userId) => {
-            if (!userId) {
-                return `/${this.getUserInLocal().userId}`;
+        this.url_username = (name) => {
+            if (name) {
+                return `/${name}`
             }
-            return `/${userId}`;
+            return `/${this.getUserInLocal().name}`
         }
-        this.urlRemoveSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234", saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
-            return `/api/remove-savedata/${token}?password=${userpassword}&saveDataId=${saveDataId}`;
+        this.urlRemoveSaveData = (saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
+            return `/api/remove-savefile-showcase?savefileId=${saveDataId}`
         }
-        this.urlAddSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234") => {
-            return `/api/add-savedata/${token}?password=${userpassword}`;
+        this.urlAddSaveData = () => {
+            return `/api/add-savefile-showcase`
         }
-        this.urlUpdateSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234", saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
-            return `/api/update-savedata/${token}?password=${userpassword}&saveDataId=${saveDataId}`;
+        this.urlUpdateSaveData = (saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
+            return `/api/update-savefile-showcase?savefileId=${saveDataId}`
         }
-        this.urlGetSavesData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234") => {
-            return `/api/get-savesdata/${token}?password=${userpassword}`;
+        this.urlGetSavesData = () => {
+            return `/api/get-all-savefile-showcase-of-user`
         }
-        this.urlGetSpecifySaveData = (token = "605375c41fe11a29ecaa21fe", saveDataId = "123") => {
-            return `/api/get-savesdata/${token}?saveDataId=${saveDataId}`;
+        this.urlGetSpecifySaveData = (saveFileId = "123") => {
+            return `/api/get-specific-savefile-showcase?savefileId=${saveFileId}`
         }
         this.urlLogin = () => {
-            return `/auth/login`;
+            return `/auth/login`
         }
         this.urlCreateUser = () => {
-            return `/auth/signup`;
+            return `/auth/signup`
         }
         //////////////////
         // dispatch component section //
@@ -359,7 +344,7 @@ class Vars {
                 payload: {
                     isHide: false
                 }
-            });
+            })
         }
         this.hideHomePageButtons = (dispatch) => {
             dispatch({
@@ -367,7 +352,7 @@ class Vars {
                 payload: {
                     isHide: true
                 }
-            });
+            })
         }
         this.changeComponentsIndex = (dispatch, nextPositionIndex, address) => {
             dispatch({
@@ -375,7 +360,7 @@ class Vars {
                 payload: {
                     nextPositionIndex, address
                 }
-            });
+            })
         }
         this.tinyIconToggle = (dispatch, selectedTarget) => {
             dispatch({
@@ -383,7 +368,15 @@ class Vars {
                 payload: {
                     selectedTarget
                 }
-            });
+            })
+        }
+        this.savePreferenceModify = (dispatch, isCvPublic) => {
+            dispatch({
+                type: this.SAVE_PREFERENCE_MODIFY_EVENT,
+                payload: {
+                    isCvPublic
+                }
+            })
         }
         this.tinyPreferenceToggle = (dispatch, isActive) => {
             dispatch({
@@ -391,7 +384,7 @@ class Vars {
                 payload: {
                     isActive
                 }
-            });
+            })
         }
         this.editingText = (dispatch, content, address, _id) => {
             dispatch({
@@ -399,7 +392,7 @@ class Vars {
                 payload: {
                     content, address, _id
                 }
-            });
+            })
         }
         this.addComponentIn = (dispatch, addedIdComponent, address = "homePage/") => {
             dispatch({
@@ -408,7 +401,7 @@ class Vars {
                     content: addedIdComponent,
                     address: address
                 }
-            });
+            })
         }
         this.removeComponentIn = (dispatch, address = "homePage/") => {
             dispatch({
@@ -416,20 +409,20 @@ class Vars {
                 payload: {
                     address
                 }
-            });
+            })
         }
         this.clearHomepage = (dispatch) => {
             dispatch({
                 type: this.CLEAR_HOMEPAGE_EVENT,
-            });
-            let obj = this.getCycvObjInLocal();
-            obj.user.current_saveDataId = null;
-            this.setCycvObjToLocal(obj);
+            })
+            let obj = this.getCycvObjInLocal()
+            obj.user.current_saveDataId = null
+            this.setCycvObjToLocal(obj)
         }
         this.clearUserSectionInStore = (dispatch) => {
             dispatch({
                 type: this.CLEAR_USER_SECTION_IN_STORE_EVENT,
-            });
+            })
         }
         this.updateSavesDataInStore = (dispatch, savesData, saveDataId) => {
             dispatch({
@@ -437,7 +430,7 @@ class Vars {
                 payload: {
                     savesData, saveDataId
                 }
-            });
+            })
         }
         this.applySaveDataId = (dispatch, saveDataId) => {
             dispatch({
@@ -445,15 +438,19 @@ class Vars {
                 payload: {
                     saveDataId
                 }
-            });
+            })
         }
         this.applyUserId = (dispatch, userId, password, name, saveDataId, savesData) => {
             dispatch({
                 type: this.APPLY_USER_ID_EVENT,
                 payload: {
-                    userId, password, name, saveDataId, savesData
+                    userId,
+                    password,
+                    name,
+                    saveDataId,
+                    savesData
                 }
-            });
+            })
         }
         this.applyTemperSaveData = (dispatch, saveData) => {
             dispatch({
@@ -461,7 +458,7 @@ class Vars {
                 payload: {
                     saveData
                 }
-            });
+            })
         }
         //////////////////
         // modal section //
@@ -532,7 +529,7 @@ class Vars {
             const partsArr = this.calculatePartsIn(address);
             switch (partsArr.length) {
                 case 3:
-                    // example in case 3: `homePage/aboutMe/1`
+                    // example for case 3: `homePage/aboutMe/1`
                     const draggingBlockIndex = this.findIndexOfComponentIn(higherComponent, draggingBlockId);
                     const higherComponentName = partsArr[1];
                     if (higherComponentName.toUpperCase() === draggingHigherComponentName.toUpperCase()) {
@@ -629,6 +626,9 @@ class Vars {
     }
     get TINY_PREFERENCE_TOGGLE_EVENT() {
         return "TINY_PREFERENCE_TOGGLE_EVENT";
+    }
+    get SAVE_PREFERENCE_MODIFY_EVENT() {
+        return "SAVE_PREFERENCE_MODIFY_EVENT";
     }
     get TINY_ICON_TOGGLE_EVENT() {
         return "TINY_ICON_TOGGLE_EVENT";

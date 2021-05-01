@@ -11,6 +11,7 @@ import SavesDataArea from "./SavesDataArea";
 import { connect } from "react-redux";
 import Input from "../../../custom-components/Input";
 import useRoute from "../../authenticate/useRoute";
+import SwitchButton from "./SwitchButton";
 
 const BlockModified = styled(Block)`
     position: absolute;
@@ -23,7 +24,7 @@ const BlockModified = styled(Block)`
             display: block;
         }
     }
-`;
+`
 
 const savePdf = (imgData) => {
     const pdf = new jsPdf({
@@ -36,12 +37,12 @@ const savePdf = (imgData) => {
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
     console.log(`pdfWidth,pdfHeight`, pdfWidth, pdfHeight)
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`${new Date().toISOString()}.pdf`);
+    pdf.save(`${new Date().toISOString()}.pdf`)
 }
 
 const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, homePage, preference, name, dispatch, className }) => {
-    const currentSaveData = React.useMemo(() => Vars.findCurrentSaveData(current_saveDataId, savesData), [current_saveDataId]);
-    const route = useRoute();
+    const currentSaveData = React.useMemo(() => Vars.findCurrentSaveData(current_saveDataId, savesData), [current_saveDataId])
+    const route = useRoute()
 
     const savePng = () => {
         const domElement = document.querySelector(".root-container");
@@ -50,71 +51,76 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
                 document.getElementById(Vars.TINY_PREFERENCE_BLOCK).style.visibility = "hidden";
             }
         }).then(canvas => {
-            Vars.showHomePageButtons(dispatch);
-            Vars.closeModal(dispatch);
-            const imgUrlData = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            Vars.showHomePageButtons(dispatch)
+            Vars.closeModal(dispatch)
+            const imgUrlData = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
             Utility.downloadImage(imgUrlData, `${new Date().toISOString()}.png`);
-        });
+        })
     }
 
     const handleOpenSavesArea = () => {
         if (!Vars.isUserSignIn()) {
             Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg);
-            return;
+            return
         }
-        Vars.showCustomModal(dispatch, `All of your save files are here`, "70%", Vars.createModalBody(<SavesDataArea width="100%" className="" />));
+        Vars.showCustomModal(dispatch, `All of your save files are here`, "70%", Vars.createModalBody(<SavesDataArea width="100%" className="" />))
     }
 
     const handleSaveCvToHarddrive = () => {
         Vars.showYesNo(dispatch, `Are you sure wanting save your hard work into hard drive right now?`, () => {
             Vars.showLoading(dispatch, `Please wait! Processing...!`, () => {
-                Vars.hideHomePageButtons(dispatch);
-                savePng();
-            }, 2000);
-        });
-    };
+                Vars.hideHomePageButtons(dispatch)
+                savePng()
+            }, 2000)
+        })
+    }
 
     const handleSaveNewCvToCloud = () => {
         if (!Vars.isUserSignIn()) {
-            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg);
-            return;
+            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
+            return
         }
         const EnterSaveFileName = ({ width, className, dispatch }) => {
             const [saveName, setSaveName] = React.useState("your_save_file");
 
             const saveAction = () => {
                 const saveData = {
-                    name: saveName,
-                    homePage,
-                    preference
+                    saveData: {
+                        name: saveName,
+                        homePage,
+                        preference
+                    }
                 }
                 Vars.showLoading(dispatch, `Please wait...!`, async () => {
-                    const rawData = await Vars.fetchApi(Vars.urlAddSaveData(userId, password), {
+                    const rawData = await Vars.fetchApi(Vars.urlAddSaveData(), {
                         method: "POST",
                         data: (saveData)
-                    });
+                    })
                     console.log(`addNewSaveData.res.rawData`, rawData)
                     if (rawData.messenger === "successfully!") {
-                        Vars.closeModal(dispatch, Vars.MODAL_CUSTOM);
-                        Vars.showNotify(dispatch, `Add new save file ${rawData.messenger}`);
-                        const { _saveDataId, _createdDate } = rawData.doc;
+                        Vars.closeModal(dispatch, Vars.MODAL_CUSTOM)
+                        Vars.showNotify(dispatch, `Add new save file ${rawData.messenger}`)
+                        const { _id, createdAt } = rawData.doc
                         const nextSaveData = {
-                            saveData,
-                            _saveDataId,
-                            _createdDate,
+                            saveData: {
+                                name: saveName,
+                                homePage,
+                                preference
+                            },
+                            _id,
+                            createdAt,
                         }
                         // update the add saved to the redux store
-                        const addedSavesData = Vars.addNewSaveDataToSavesData(savesData, nextSaveData);
-                        Vars.updateSavesDataInStore(dispatch, addedSavesData, _saveDataId);
+                        const addedSavesData = Vars.addNewSaveDataToSavesData(savesData, nextSaveData)
+                        Vars.updateSavesDataInStore(dispatch, addedSavesData, _id)
                         // save to local
-                        Vars.saveUserInfoToLocal(userId, password, name, addedSavesData, _saveDataId);
+                        Vars.saveUserInfoToLocal(userId, password, name, addedSavesData, _id)
                         // redirect route
-                        route.push(Vars.url_userid_saveid(userId, _saveDataId));
+                        route.push(Vars.url_username_saveid(name, _id))
                         return;
                     }
-                    Vars.showNotify(dispatch, `Something went wrong!`, Vars.sadImg);
+                    Vars.showNotify(dispatch, `Something went wrong!`, Vars.sadImg)
                 }, 500)
-
             }
 
             const handleNameChange = (e) => {
@@ -133,47 +139,51 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
 
     const handleSaveCvToCloud = () => {
         if (!Vars.isUserSignIn()) {
-            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg);
-            return;
+            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
+            return
         }
         if (!savesData || !current_saveDataId) {
-            handleSaveNewCvToCloud();
-            return;
+            handleSaveNewCvToCloud()
+            return
         }
 
         const saveObj = {
-            name: currentSaveData.saveData.name,
-            homePage,
-            preference
+            saveData: {
+                name: currentSaveData.saveData.name,
+                homePage,
+                preference
+            }
         }
         Vars.showLoading(dispatch, `Please wait...!`, async () => {
-            const rawData = await Vars.fetchApi(Vars.urlUpdateSaveData(userId, password, current_saveDataId), {
+            const rawData = await Vars.fetchApi(Vars.urlUpdateSaveData(current_saveDataId), {
                 method: "PUT",
                 data: (saveObj)
-            });
+            })
             if (rawData.messenger === "successfully!") {
                 console.log(`saveCurrentSaveData.res.rawData`, rawData)
-                Vars.closeModal(dispatch, Vars.MODAL_CUSTOM);
-                Vars.showNotify(dispatch, `${rawData.messenger}`);
+                Vars.closeModal(dispatch, Vars.MODAL_CUSTOM)
+                Vars.showNotify(dispatch, `${rawData.messenger}`)
                 // update the current saved to the redux store
-                const updatedSavesData = Vars.updateCurrentSavesData(currentSaveData, savesData, { homePage, preference });
-                Vars.updateSavesDataInStore(dispatch, updatedSavesData);
+                const updatedSavesData = Vars.updateCurrentSavesData(currentSaveData, savesData, { homePage, preference })
+                Vars.updateSavesDataInStore(dispatch, updatedSavesData)
                 // save to local
-                Vars.saveUserInfoToLocal(userId, password, name, updatedSavesData);
-                return;
+                Vars.saveUserInfoToLocal(userId, password, name, updatedSavesData)
+                return
             }
-            Vars.showNotify(dispatch, `Something went wrong!`, Vars.sadImg);
-        }, 500);
+            Vars.showNotify(dispatch, `Something went wrong!`, Vars.sadImg)
+        }, 500)
     }
 
     const handleReset = () => {
         Vars.showYesNo(dispatch, `Are you sure want to make a new file? All of your unsaved works will be lost!`, () => {
-            Vars.clearHomepage(dispatch);
-        });
+            Vars.clearHomepage(dispatch)
+            route.push(Vars.url_username(name))
+        })
     }
 
     return (
         <BlockModified width={width} className={className}>
+            <SwitchButton className="me-1 mb-1" />
             <Button onClick={handleOpenSavesArea} className="me-1 mb-1 bg-white">
                 Load
             </Button>
@@ -191,7 +201,7 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
             </Button>
             <Text fontSize={Vars.FONT_SIZE_SM} className="mb-1">{currentSaveData && currentSaveData.saveData.name || "unsaved"}</Text>
         </BlockModified>
-    );
+    )
 }
 
 const mapCurrentStoreToProps = (currentStore) => {
@@ -206,4 +216,4 @@ const mapCurrentStoreToProps = (currentStore) => {
     }
 }
 
-export default connect(mapCurrentStoreToProps)(SaveCvNavbar);
+export default connect(mapCurrentStoreToProps)(SaveCvNavbar)

@@ -31,7 +31,7 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
             return;
         }
         Vars.showLoading(dispatch, `Please wait...!`, async () => {
-            const name = userName;
+            const name = userName.replace(/\s+/g, "-")
             const newUser = {
                 name, email, password
             }
@@ -46,7 +46,7 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
                 Vars.signIn(dispatch, token, name, password)
                 Vars.showNotify(dispatch, `Created account ${rawData.messenger}`)
                 // redirect route
-                route.push(Vars.url_userid(token));
+                route.push(Vars.url_username());
                 return;
             }
             Vars.showNotify(dispatch, `Some thing went wrong!`);

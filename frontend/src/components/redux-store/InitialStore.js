@@ -43,6 +43,9 @@ const InitialStore = {
         tinyPreference: {
             isActive: false,
             selectedTarget: Vars.SPLIT_LEFT_ICON,
+        },
+        savePreference: {
+            isCvPublic: false
         }
     },
     homePage: {

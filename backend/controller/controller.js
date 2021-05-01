@@ -60,7 +60,7 @@ exports.weather = async (request, response) => {
 exports.getAllSaveFileShowCase = (request, response) => {
     Model.cycShowCaseSaveFile.find(
         {
-            isPublic: true
+            "saveData.preference.savePreference.isCvPublic": true
         }
     )
         .populate({
@@ -70,6 +70,38 @@ exports.getAllSaveFileShowCase = (request, response) => {
         .exec(function (err, docs) {
             if (!err) {
                 response.send({ docs, messenger: "successfully!" })
+                return
+            }
+            if (err) {
+                console.log(`messenger`, err)
+                response.status(404).send({ messenger: "your info are so wrong!" })
+                return
+            }
+            console.log(`Can't find anything`)
+            response.send({ messenger: "Can't find anything" })
+        })
+}
+//
+// /api/get-specific-savefile-showcase
+//
+exports.getSpecificSaveFileShowcase = (request, response) => {
+    const { savefileId } = request.query
+
+    Model.cycShowCaseSaveFile.findOne({
+        _id: ObjectId(savefileId),
+        "saveData.preference.savePreference.isCvPublic": true
+    })
+        .populate({
+            path: "createdBy",
+            select: "email"
+        })
+        .exec(function (err, doc) {
+            if (!err) {
+                if (doc) {
+                    response.send({ doc, messenger: "successfully!" })
+                    return
+                }
+                response.send({ messenger: "successfully found but this cv is not mean for public view!" })
                 return
             }
             if (err) {
@@ -138,7 +170,7 @@ exports.removeSaveFileShowCase = (request, response) => {
 // /api/update-savefile-showcase
 //
 exports.updateSaveFileShowCase = (request, response) => {
-    const { data, isPublic, name } = request.body
+    const { saveData } = request.body
     const { savefileId } = request.query
 
     Model.cycShowCaseSaveFile.findOneAndUpdate(
@@ -147,9 +179,7 @@ exports.updateSaveFileShowCase = (request, response) => {
         },
         {
             $set: {
-                data,
-                isPublic,
-                name
+                saveData,
             }
         }, { new: true },
         function (err, doc) {
@@ -171,9 +201,9 @@ exports.updateSaveFileShowCase = (request, response) => {
 //
 exports.addSaveFileToShowCase = (request, response) => {
     const id = request.user._id
-    const saveData = request.body
+    const { saveData } = request.body
 
-    Model.cycShowCaseSaveFile.create({ ...saveData, createdBy: id }, function (err, doc) {
+    Model.cycShowCaseSaveFile.create({ saveData, createdBy: id }, function (err, doc) {
         if (err) {
             response.send({ messenger: err })
             return
@@ -182,9 +212,12 @@ exports.addSaveFileToShowCase = (request, response) => {
     })
 }
 //
+//
+//
+//
 // @Old-api
 //
-
+//
 //
 // /api/remove-savedata/:token
 //

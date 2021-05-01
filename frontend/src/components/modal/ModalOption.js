@@ -9,8 +9,8 @@ import Block from '../../custom-components/Block';
 import Utility from '../../custom-components/Utility';
 
 const ModalOption = ({ isModalShow, title, dispatch, content, chooseAction, images, className }) => {
-    const [avatarUrl, setImageUrl] = React.useState("");
-    const [avatarUrl_2, setImageUrl_2] = React.useState("");
+    const [avatarUrl, setImageUrl] = React.useState("")
+    const [avatarUrl_2, setImageUrl_2] = React.useState("")
 
     const handleCloseClick = (e) => {
         switch (title) {
@@ -19,53 +19,53 @@ const ModalOption = ({ isModalShow, title, dispatch, content, chooseAction, imag
                     chooseAction.bind(null, avatarUrl_2)();
                     setImageUrl_2("");
                     Vars.closeModal(dispatch, Vars.MODAL_OPTION);
-                    return;
+                    return
                 }
                 if (avatarUrl) {
-                    chooseAction.bind("", avatarUrl)();
-                    setImageUrl("");
-                    Vars.closeModal(dispatch, Vars.MODAL_OPTION);
-                    return;
+                    chooseAction.bind("", avatarUrl)()
+                    setImageUrl("")
+                    Vars.closeModal(dispatch, Vars.MODAL_OPTION)
+                    return
                 }
-                Vars.closeModal(dispatch, Vars.MODAL_OPTION);
-                break;
+                Vars.closeModal(dispatch, Vars.MODAL_OPTION)
+                break
         }
     }
 
     const uploadImage = async (formData) => {
         const rawData = await Vars.fetchApi(`https://api.cloudinary.com/v1_1/cachiengion314/image/upload`, {
             method: "POST",
-            body: formData,
-        });
+            data: formData,
+        })
         console.log(`uploadImage.rawData`, rawData)
-        return rawData;
+        return rawData
     }
 
     const prepareToUploadFile = (e) => {
-        const regexCheckImg = /([.]png|[.]jpg|[.]jpeg)$/i;
+        const regexCheckImg = /([.]png|[.]jpg|[.]jpeg)$/i
         if (!regexCheckImg.test(e.target.files[0].name)) {
-            Vars.showNotify(dispatch, `Sorry, we don't support this type of image! Please try png or jpeg!`, Vars.sadImg);
+            Vars.showNotify(dispatch, `Sorry, we don't support this type of image! Please try png or jpeg!`, Vars.sadImg)
             return;
         }
-        const formData = new FormData();
-        formData.append(`file`, e.target.files[0]);
-        formData.append(`upload_preset`, "cachiengion314image");
+        const formData = new FormData()
+        formData.append(`file`, e.target.files[0])
+        formData.append(`upload_preset`, "cachiengion314image")
         Vars.showLoading(dispatch, `Please wait...!`, async () => {
             const rawData = await uploadImage(formData);
             setImageUrl((previousVal) => {
-                return rawData.url;
+                return rawData.url
             });
-            Vars.closeModal(dispatch, Vars.MODAL_NOTIFY);
+            Vars.closeModal(dispatch, Vars.MODAL_NOTIFY)
         });
     }
 
     const handleTypeUrlString = (e) => {
-        setImageUrl_2(e.target.value);
+        setImageUrl_2(e.target.value)
     }
 
     return (
         <Modal
-            width={false} isModalShow={isModalShow}
+            width={"60%"} isModalShow={isModalShow}
             zIndex={Vars.MODAL_ZINDEX} mediaMaxWidth={Vars.MEDIA_MAX_WIDTH} className={className}
         >
             <Text textAlign="center" fontSize={Vars.FONT_SIZE_MD} className="mb-2">
