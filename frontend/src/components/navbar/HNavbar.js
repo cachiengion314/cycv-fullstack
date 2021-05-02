@@ -25,7 +25,7 @@ const HoverBlockStyled = styled(Block)`
     float: left;
     background-color: inherit;
     &:hover{
-        background-color: lightyellow;
+        background-color: #d9ffbb;
         transition-property: background-color;
         transition: all .5s ease;
     }

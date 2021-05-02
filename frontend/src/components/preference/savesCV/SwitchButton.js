@@ -5,16 +5,6 @@ import Vars from '../../other-stuffs/Vars'
 import { connect } from "react-redux"
 
 const SwitchButton = ({ dispatch, isCvPublic, className }) => {
-    const [switchDisableStatus, setSwitchDisableStatus] = React.useState(isCvPublic ? false : true)
-
-    React.useEffect(() => {
-        if (isCvPublic) {
-            setSwitchDisableStatus(false)
-            return
-        }
-        setSwitchDisableStatus(true)
-    }, [isCvPublic])
-
     const setPublicAction = () => {
         Vars.savePreferenceModify(dispatch, true)
     }
@@ -24,30 +14,23 @@ const SwitchButton = ({ dispatch, isCvPublic, className }) => {
     }
 
     const handleBlockClick = (e) => {
-        if (switchDisableStatus) {
-            Vars.showYesNo(dispatch, "Do you want to public your own cv to everyone?", () => {
-                setPublicAction()
-            }, () => {
-                setPrivateAction()
-            })
+        if (isCvPublic) {
+            Vars.showNotify(dispatch, "You have set this cv to private! Hit save button to save your choice!", Vars.boringImg)
+            setPrivateAction()
             return
         }
-        Vars.showYesNo(dispatch, "Do you want to make your cv private?", () => {
-            setPrivateAction()
-        }, () => {
-            setPublicAction()
-        })
+        Vars.showNotify(dispatch, "Congratulation! You have successfully set this cv to public! Please hit save button to save your choice!", Vars.joyImg)
+        setPublicAction()
     }
 
     return (
         <Block className={className} onClick={handleBlockClick}>
             <BootstrapSwitchButton
-                checked={switchDisableStatus ? false : true}
+                checked={isCvPublic}
                 size="sm"
                 onlabel='On'
                 offlabel='Hide'
                 onstyle="success"
-                disabled={switchDisableStatus}
             />
         </Block>
     )

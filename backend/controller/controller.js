@@ -57,29 +57,74 @@ exports.weather = async (request, response) => {
 //
 // /api/get-all-savefile-showcase
 //
-exports.getAllSaveFileShowCase = (request, response) => {
-    Model.cycShowCaseSaveFile.find(
-        {
-            "saveData.preference.savePreference.isCvPublic": true
-        }
-    )
-        .populate({
-            path: "createdBy",
-            select: "email"
-        })
-        .exec(function (err, docs) {
-            if (!err) {
-                response.send({ docs, messenger: "successfully!" })
-                return
-            }
-            if (err) {
-                console.log(`messenger`, err)
-                response.status(404).send({ messenger: "your info are so wrong!" })
-                return
-            }
-            console.log(`Can't find anything`)
-            response.send({ messenger: "Can't find anything" })
-        })
+exports.getAllSaveFileShowCase = async (request, response) => {
+    const { page, pageSize } = request.query
+    const _pageSize = Number(pageSize) || 8
+    const _page = Number(page) || 1
+    const skip = (_page - 1) * _pageSize
+
+    try {
+        const docs = await Model.cycShowCaseSaveFile.aggregate(
+            [
+                {
+                    $facet: {
+                        totalItems: [
+                            {
+                                $match: {
+                                    "saveData.preference.savePreference.isCvPublic": true
+                                }
+                            },
+                            {
+                                $count: "total"
+                            }
+                        ],
+                        allSaveFiles: [
+                            {
+                                $skip: skip
+                            },
+                            {
+                                $limit: _pageSize
+                            },
+                            {
+                                $match: {
+                                    "saveData.preference.savePreference.isCvPublic": true
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: "cycvusers",
+                                    localField: "createdBy",
+                                    foreignField: "_id",
+                                    as: "_createdByUser"
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$_createdByUser",
+                                }
+                            },
+                            {
+                                $project: {
+                                    "_id": 1,
+                                    "saveData": 1,
+                                    "createdBy": "$_createdByUser.email",
+                                    "createdAt": 1,
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$totalItems",
+                    }
+                },
+            ]
+        )
+        response.send({ docs, messenger: "successfully!" })
+    } catch (err) {
+        response.send({ docs, messenger: err })
+    }
 }
 //
 // /api/get-specific-savefile-showcase
@@ -101,7 +146,7 @@ exports.getSpecificSaveFileShowcase = (request, response) => {
                     response.send({ doc, messenger: "successfully!" })
                     return
                 }
-                response.send({ messenger: "successfully found but this cv is not mean for public view!" })
+                response.send({ messenger: "maybe this cv is not mean for public view!" })
                 return
             }
             if (err) {

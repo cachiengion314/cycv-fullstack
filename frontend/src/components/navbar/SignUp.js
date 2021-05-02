@@ -39,17 +39,16 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
                 method: "POST",
                 data: (newUser)
             })
-            console.log(`signup.handleSubmit.rawData`, rawData)
             if (rawData && rawData.messenger === "successfully!") {
                 const token = rawData.token
                 Vars.closeModal(dispatch)
                 Vars.signIn(dispatch, token, name, password)
                 Vars.showNotify(dispatch, `Created account ${rawData.messenger}`)
                 // redirect route
-                route.push(Vars.url_username());
+                route.push(Vars.url_username())
                 return;
             }
-            Vars.showNotify(dispatch, `Some thing went wrong!`);
+            Vars.showNotify(dispatch, `Some thing went wrong!`)
         }, 500)
     }
     return (

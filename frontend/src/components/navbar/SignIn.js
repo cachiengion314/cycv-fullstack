@@ -10,12 +10,12 @@ import useRoute from "../authenticate/useRoute";
 
 const Form = styled.form`
     width: ${props => props.width || "100%"};
-`;
+`
 
 const SignIn = ({ width, isModalShow, dispatch, className }) => {
-    const [email, setEmail] = React.useState("");
-    const [password, setPassword] = React.useState("");
-    const route = useRoute();
+    const [email, setEmail] = React.useState("")
+    const [password, setPassword] = React.useState("")
+    const route = useRoute()
 
     React.useEffect(() => {
         if (isModalShow) {
@@ -33,7 +33,6 @@ const SignIn = ({ width, isModalShow, dispatch, className }) => {
             let currentUser = {
                 email, password
             }
-            console.log(`currentUser`, currentUser)
             const rawData = await Vars.fetchApi(Vars.urlLogin(), {
                 method: "POST",
                 data: (currentUser)
@@ -41,8 +40,6 @@ const SignIn = ({ width, isModalShow, dispatch, className }) => {
             if (rawData && rawData.messenger === "successfully!") {
                 const token = rawData.token
                 const name = rawData.name
-                console.log(`signin.handleSubmit.rawData`, rawData)
-
                 Vars.closeModal(dispatch)
                 Vars.signIn(dispatch, token, name, password)
                 Vars.showNotify(dispatch, `Sign in with account ${rawData.messenger}`)

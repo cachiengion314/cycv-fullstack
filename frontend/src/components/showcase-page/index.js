@@ -1,24 +1,70 @@
 import React from 'react'
 import Block from '../../custom-components/Block'
+import Vars from '../other-stuffs/Vars'
 import Pagination from './Pagination'
 import UserCvThumpnail from './UserCvThumpnail'
+import Loading from '../loading'
+import Text from '../../custom-components/Text'
 
 const Index = ({ dispatch }) => {
     const [activePage, setActivePage] = React.useState(1)
+    const [usersCvSavefiles, setUsersCvSavefiles] = React.useState([])
+    const [totalCv, setTotalCv] = React.useState(14)
+    const [needLoading, setNeedLoading] = React.useState(true)
+
+    React.useEffect(() => {
+        (async function (setUsersCvSavefiles, Vars) {
+            const rawData = await Vars.fetchApi(Vars.urlAllPublicSavefiles(activePage))
+            if (!rawData) {
+                console.log(`fetch fail!`)
+                setNeedLoading(false)
+                return
+            }
+            const { totalItems, allSaveFiles, } = rawData.docs[0]
+            const _totalCv = totalItems.total
+            if (rawData.messenger === "successfully!") {
+                setUsersCvSavefiles(allSaveFiles)
+                setTotalCv(_totalCv)
+            }
+            setNeedLoading(false)
+        })(setUsersCvSavefiles, Vars);
+    }, [activePage])
 
     const handlePagiClick = (i) => {
         setActivePage(i)
+        setNeedLoading(true)
+    }
+
+    if (needLoading) {
+        return (
+            <Loading minHeight="12rem" />
+        )
+    }
+
+    if (usersCvSavefiles.length === 0) {
+        return (
+            <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" className="users-cv align-h-center mb-2">
+                <Text fontSize={Vars.FONT_SIZE_SM}>There is no data</Text>
+            </Block>
+        )
     }
 
     return (
-        <Block width="100%" padding="1rem" >
+        <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" >
             <Block width="100%" flexbox={true} className="users-cv align-h-center mb-2">
-                <UserCvThumpnail
-                    width="100" className="me-2 mb-2"
-                    createdBy={"cachiengion314@gmail.com"} fileName={"your_save_file_1"}
-                />
+                {
+                    usersCvSavefiles.map(savefile => {
+                        return (
+                            <UserCvThumpnail
+                                width="14rem" className="me-2 mb-2" key={savefile._id}
+                                createdBy={savefile.createdBy} fileName={savefile.saveData.name}
+                                saveDataId={savefile._id}
+                            />
+                        )
+                    })
+                }
             </Block>
-            <Pagination activePage={activePage} totalItem={14} handlePagiClick={handlePagiClick} className="float-end me-5" />
+            <Pagination activePage={activePage} totalItems={totalCv} handlePagiClick={handlePagiClick} className="float-end me-5" />
         </Block>
     )
 }

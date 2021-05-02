@@ -72,12 +72,12 @@ class Vars {
             }
             this.setCycvObjToLocal(obj);
         }
-        this.signIn = async (dispatch, token, name, password) => {
+        this.signIn = async (dispatch, token, name, password, isNeedApplySaveDataId = true) => {
             if (this.isUserSignIn()) {
                 const { password, name, savesData, current_saveDataId, token } = this.getUserInLocal()
                 this.applyUserId(dispatch, token, password, name)
                 this.updateSavesDataInStore(dispatch, savesData)
-                if (current_saveDataId) {
+                if (current_saveDataId && isNeedApplySaveDataId) {
                     this.applySaveDataId(dispatch, current_saveDataId)
                 }
                 return true
@@ -322,6 +322,12 @@ class Vars {
         }
         this.urlUpdateSaveData = (saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
             return `/api/update-savefile-showcase?savefileId=${saveDataId}`
+        }
+        this.urlAllPublicSavefiles = (page) => {
+            if (page) {
+                return `/api/get-all-savefile-showcase?page=${page}&pageSize=${this.PAGE_SIZE}`
+            }
+            return `/api/get-all-savefile-showcase`
         }
         this.urlGetSavesData = () => {
             return `/api/get-all-savefile-showcase-of-user`
@@ -741,7 +747,7 @@ class Vars {
     get FONT_SIZE_SUPER_BIG() {
         return "4.1rem";
     }
-    get ITEMS_PER_PAGE() {
+    get PAGE_SIZE() {
         return 8
     }
     //////////////////

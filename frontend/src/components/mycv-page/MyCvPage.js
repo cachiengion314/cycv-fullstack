@@ -3,52 +3,67 @@ import Preference from "../preference";
 import HomePage from "../home-page";
 import Vars from '../other-stuffs/Vars';
 import useRoute from "../authenticate/useRoute";
+import Loading from '../loading';
 
 const MyCvPage = ({ width, dispatch, className }) => {
+    const [needLoading, setNeedLoading] = React.useState(true)
     const route = useRoute()
     const id = route.paramUserId
     const saveDataIdQuery = route.querySaveDataId
     console.log(`paramUserId, saveDataIdQuery`, id, saveDataIdQuery)
 
-    const controlStatus = async () => {
-        if (Vars.isUserSignIn()) {
-            if (id && saveDataIdQuery && !Vars.isOwnerOfUserName_saveDataId(id, saveDataIdQuery)) {
-                const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
-                if (!isSuccess) {
-                    Vars.signIn(dispatch)
-                    route.push(Vars.url_username_saveid())
+    React.useEffect(() => {
+        const controlStatus = async () => {
+            if (Vars.isUserSignIn()) {
+                if (id && saveDataIdQuery && !Vars.isOwnerOfUserName_saveDataId(id, saveDataIdQuery)) {
+                    const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
+                    if (!isSuccess) {
+                        Vars.signIn(dispatch)
+                        route.push(Vars.url_username_saveid())
+                        setNeedLoading(false)
+                        return
+                    }
+                    Vars.signIn(dispatch, null, null, null, false)
+                    setNeedLoading(false)
                     return
                 }
-                Vars.signIn(dispatch, null, null, null, false)
-                return
-            }
-            if (Vars.getUserInLocal().current_saveDataId) {
-                Vars.signIn(dispatch);
-                route.push(Vars.url_username_saveid())
+                if (Vars.getUserInLocal().current_saveDataId) {
+                    Vars.signIn(dispatch);
+                    route.push(Vars.url_username_saveid())
+                    setNeedLoading(false)
+                    return;
+                }
+                Vars.signIn(dispatch)
+                route.push(Vars.url_username())
+                setNeedLoading(false)
                 return;
             }
-            Vars.signIn(dispatch)
-            route.push(Vars.url_username())
-            return;
-        }
 
-        if (id && saveDataIdQuery) {
-            const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
-            if (!isSuccess) {
-                route.push("/")
+            if (id && saveDataIdQuery) {
+                const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
+                setNeedLoading(false)
+                if (!isSuccess) {
+                    route.push("/")
+                    setNeedLoading(false)
+                    return
+                }
+                setNeedLoading(false)
                 return
             }
-            return
+
+            route.push("/")
+            setNeedLoading(false)
         }
 
-        route.push("/")
-    }
-
-    React.useEffect(() => {
         controlStatus()
         // eslint-disable-next-line
-    }, [])
+    }, [saveDataIdQuery])
 
+    if (needLoading) {
+        return (
+            <Loading minHeight="12rem" />
+        )
+    }
     return (
         <div className="root-container">
             <div className="left-container"></div>

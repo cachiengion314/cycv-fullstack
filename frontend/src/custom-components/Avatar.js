@@ -25,14 +25,15 @@ const WHequalPointer = styled.div`
     padding-top: 100%;
 `;
 
-const Avatar = ({ padding, zIndex, width, src, background, className }) => {
+const Avatar = ({ padding, onClick, zIndex, width, alt, src, background, className }) => {
     return (
-        <Div width={width} className={className}>
+        <Div width={width} className={className} onClick={onClick}>
             <WHequalPointer></WHequalPointer>
             <WHequalContent zIndex={zIndex} padding={padding}>
                 <Img
                     src={src}
                     background={background}
+                    alt={alt}
                 />
             </WHequalContent>
         </Div>

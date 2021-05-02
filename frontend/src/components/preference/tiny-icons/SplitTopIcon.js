@@ -30,18 +30,13 @@ const SplitTopIcon = ({ width, top, right, onClickWhenOff, onClickWhenOn, select
 
     React.useEffect(() => {
         if (className.includes(selectedTarget)) {
-            setIconActive(true);
+            setIconActive(true)
+            setLineStrokeWidthVal(_lineStrokeWidth_big)
         } else {
-            setIconActive(false);
+            setIconActive(false)
+            setLineStrokeWidthVal(_lineStrokeWidth_default)
         }
-    }, [selectedTarget]);
-    React.useEffect(() => {
-        if (className.includes(selectedTarget)) {
-            setLineStrokeWidthVal(_lineStrokeWidth_big);
-        } else {
-            setLineStrokeWidthVal(_lineStrokeWidth_default);
-        }
-    }, [selectedTarget]);
+    }, [selectedTarget, className])
 
     const handleShapeClick = (e) => {
         if (!isIconActive) {

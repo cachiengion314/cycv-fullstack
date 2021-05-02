@@ -59,8 +59,12 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
     }
 
     const handleOpenSavesArea = () => {
+        if (!Vars.isOwnerOfUserName_saveDataId(route.name, route.querySaveDataId)) {
+            Vars.showNotify(dispatch, `You can't do this in another savefile!`, Vars.sadImg)
+            return
+        }
         if (!Vars.isUserSignIn()) {
-            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg);
+            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
             return
         }
         Vars.showCustomModal(dispatch, `All of your save files are here`, "70%", Vars.createModalBody(<SavesDataArea width="100%" className="" />))
@@ -76,6 +80,10 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
     }
 
     const handleSaveNewCvToCloud = () => {
+        if (!Vars.isOwnerOfUserName_saveDataId(route.name, route.querySaveDataId)) {
+            Vars.showNotify(dispatch, `You can't do this in another savefile!`, Vars.sadImg)
+            return
+        }
         if (!Vars.isUserSignIn()) {
             Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
             return
@@ -138,6 +146,10 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
     }
 
     const handleSaveCvToCloud = () => {
+        if (!Vars.isOwnerOfUserName_saveDataId(route.name, route.querySaveDataId)) {
+            Vars.showNotify(dispatch, `You can't do this in another savefile!`, Vars.sadImg)
+            return
+        }
         if (!Vars.isUserSignIn()) {
             Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
             return
