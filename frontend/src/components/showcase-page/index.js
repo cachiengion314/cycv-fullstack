@@ -37,20 +37,30 @@ const Index = ({ dispatch }) => {
 
     if (needLoading) {
         return (
-            <Loading minHeight="12rem" />
+            <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" >
+                <Block width="100%" flexbox={true} className="users-cv align-h-center mb-2">
+                    <Loading minHeight="12rem" />
+                </Block>
+                <Pagination activePage={activePage} totalItems={totalCv} handlePagiClick={handlePagiClick} className="float-end me-5" />
+            </Block>
         )
     }
 
     if (usersCvSavefiles.length === 0) {
         return (
-            <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" className="users-cv align-h-center mb-2">
-                <Text fontSize={Vars.FONT_SIZE_SM}>There is no data</Text>
+            <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" >
+                <Block width="100%" flexbox={true} className="users-cv align-h-center mb-2">
+                    <Text fontSize={Vars.FONT_SIZE_SM}>There is no data</Text>
+                </Block>
+                <Pagination activePage={activePage} totalItems={totalCv} handlePagiClick={handlePagiClick} className="float-end me-5" />
             </Block>
         )
     }
 
     return (
         <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" >
+            <Text width="100%" textAlign="center" fontSize={Vars.FONT_SIZE_MD} className="text-primary">Welcome to create your CV show case</Text>
+            <Text width="100%" textAlign="center" fontSize={Vars.FONT_SIZE_SM} className="mb-4 text-secondary">All of public cv documents will be placed here</Text>
             <Block width="100%" flexbox={true} className="users-cv align-h-center mb-2">
                 {
                     usersCvSavefiles.map(savefile => {

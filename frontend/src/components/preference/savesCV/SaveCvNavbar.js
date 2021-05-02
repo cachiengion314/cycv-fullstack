@@ -58,15 +58,26 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
         })
     }
 
-    const handleOpenSavesArea = () => {
-        if (!Vars.isOwnerOfUserName_saveDataId(route.name, route.querySaveDataId)) {
-            Vars.showNotify(dispatch, `You can't do this in another savefile!`, Vars.sadImg)
-            return
-        }
+    const isUserCanSave = () => {
         if (!Vars.isUserSignIn()) {
             Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
-            return
+            return false
         }
+        if (Vars.isUserHaveCurrentSaveDataId()) {
+            if (!Vars.isCurrentSaveDataId(route.querySaveDataId)) {
+                Vars.showNotify(dispatch, `You can't save change to different savefile!`, Vars.sadImg)
+                return false
+            }
+        }
+        return true
+    }
+
+    const handleOpenSavesArea = () => {
+        if (!Vars.isUserSignIn()) {
+            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
+            return false
+        }
+
         Vars.showCustomModal(dispatch, `All of your save files are here`, "70%", Vars.createModalBody(<SavesDataArea width="100%" className="" />))
     }
 
@@ -80,14 +91,10 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
     }
 
     const handleSaveNewCvToCloud = () => {
-        if (!Vars.isOwnerOfUserName_saveDataId(route.name, route.querySaveDataId)) {
-            Vars.showNotify(dispatch, `You can't do this in another savefile!`, Vars.sadImg)
+        if (!isUserCanSave()) {
             return
         }
-        if (!Vars.isUserSignIn()) {
-            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
-            return
-        }
+
         const EnterSaveFileName = ({ width, className, dispatch }) => {
             const [saveName, setSaveName] = React.useState("your_save_file");
 
@@ -146,14 +153,10 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
     }
 
     const handleSaveCvToCloud = () => {
-        if (!Vars.isOwnerOfUserName_saveDataId(route.name, route.querySaveDataId)) {
-            Vars.showNotify(dispatch, `You can't do this in another savefile!`, Vars.sadImg)
+        if (!isUserCanSave()) {
             return
         }
-        if (!Vars.isUserSignIn()) {
-            Vars.showNotify(dispatch, `You must sign in to use this feature!`, Vars.sadImg)
-            return
-        }
+
         if (!savesData || !current_saveDataId) {
             handleSaveNewCvToCloud()
             return

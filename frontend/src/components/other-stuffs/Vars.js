@@ -70,7 +70,7 @@ class Vars {
             if (current_saveDataId) {
                 obj.user.current_saveDataId = current_saveDataId;
             }
-            this.setCycvObjToLocal(obj);
+            this.setCycvObjToLocal(obj)
         }
         this.signIn = async (dispatch, token, name, password, isNeedApplySaveDataId = true) => {
             if (this.isUserSignIn()) {
@@ -109,28 +109,32 @@ class Vars {
             }
         }
         this.fetch_applyTemperSaveData = async (dispatch, saveDataId) => {
-            let rawData = await this.fetchApi(this.urlGetSpecifySaveData(saveDataId));
+            let rawData = await this.fetchApi(this.urlGetSpecifySaveData(saveDataId))
             console.log(`applySampleSaveData.rawData`, rawData)
             if (rawData && rawData.messenger === "successfully!") {
-                this.applyTemperSaveData(dispatch, rawData.doc.saveData);
-                return true;
+                this.applyTemperSaveData(dispatch, rawData.doc.saveData)
+                return true
             }
-            return false;
+            return false
         }
-        this.isOwnerOfUserName_saveDataId = (name, saveDataId) => {
-            const user = this.getUserInLocal();
-            const _name = user.name;
-            const _saveDataId = user.current_saveDataId;
-            if (_name === name && _saveDataId === saveDataId) {
-                return true;
+        this.isCurrentSaveDataId = (saveDataId) => {
+            const _saveDataId = this.getUserInLocal().current_saveDataId
+            if (_saveDataId === saveDataId) {
+                return true
             }
-            return false;
+            return false
+        }
+        this.isUserHaveCurrentSaveDataId = () => {
+            if (this.getUserInLocal().current_saveDataId) {
+                return true
+            }
+            return false
         }
         this.isUserSignIn = () => {
             if (this.getCycvObjInLocal().user.userId) {
-                return true;
+                return true
             }
-            return false;
+            return false
         }
         this.getUserInLocal = () => {
             return this.getCycvObjInLocal().user
@@ -175,14 +179,14 @@ class Vars {
             return modifiedSavesData
         }
         this.findCurrentSaveData = (current_saveDataId, savesData) => {
-            let currentSaveData;
+            let currentSaveData
             if (savesData && current_saveDataId) {
                 currentSaveData = savesData.find(savefile => savefile._id === current_saveDataId)
             }
             if (currentSaveData) {
                 return currentSaveData
             }
-            return null;
+            return null
         }
         //////////////////
         this.createModalBody = (ModalComponent) => {

@@ -22,15 +22,23 @@ function App() {
         <ModalCustom />
         <ModalOption />
         <ModalNotify />
-        <HorizontalNav width="100%" height="3rem" />
+
+        <Block width="100%" className="cycv-header">
+          <HorizontalNav width="100%" height="3rem" />
+        </Block>
+
         <Switch>
           <Route exact path="/" children={<MyCvPage dispatch={store.dispatch} />} />
           <Route exact path="/show-case" children={<ShowCasePage dispatch={store.dispatch} />} />
           <Route path="/:id" children={<MyCvPage dispatch={store.dispatch} />} />
         </Switch>
+
+        <Block width="100%" className="cycv-footer align-center">
+          <Block width="60%" height="1px" background="darkblue" className="mt-5"></Block>
+          <AboutUs width="100%" className="mt-5" />
+        </Block>
+
       </Router>
-      <Block width="100%" height="1px" background="darkblue" className="mt-5"></Block>
-      <AboutUs className="mt-5" />
     </Provider>
   );
 }

@@ -15,7 +15,7 @@ const MyCvPage = ({ width, dispatch, className }) => {
     React.useEffect(() => {
         const controlStatus = async () => {
             if (Vars.isUserSignIn()) {
-                if (id && saveDataIdQuery && !Vars.isOwnerOfUserName_saveDataId(id, saveDataIdQuery)) {
+                if (id && saveDataIdQuery && !Vars.isCurrentSaveDataId(saveDataIdQuery)) {
                     const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
                     if (!isSuccess) {
                         Vars.signIn(dispatch)
@@ -27,21 +27,22 @@ const MyCvPage = ({ width, dispatch, className }) => {
                     setNeedLoading(false)
                     return
                 }
-                if (Vars.getUserInLocal().current_saveDataId) {
+
+                if (Vars.isUserHaveCurrentSaveDataId()) {
                     Vars.signIn(dispatch);
                     route.push(Vars.url_username_saveid())
                     setNeedLoading(false)
-                    return;
+                    return
                 }
+
                 Vars.signIn(dispatch)
                 route.push(Vars.url_username())
                 setNeedLoading(false)
-                return;
+                return
             }
 
             if (id && saveDataIdQuery) {
                 const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
-                setNeedLoading(false)
                 if (!isSuccess) {
                     route.push("/")
                     setNeedLoading(false)
