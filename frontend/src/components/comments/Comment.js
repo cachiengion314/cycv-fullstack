@@ -7,6 +7,7 @@ import Vars from '../other-stuffs/Vars'
 import Text from '../../custom-components/Text'
 import useRoute from '../authenticate/useRoute'
 import Loading from '../loading'
+import { connect } from 'react-redux'
 
 const BlockStyled = styled(Block)`
     @media (max-width: ${props => props.mediaMaxWidth ? props.mediaMaxWidth : "600px"}){
@@ -14,7 +15,7 @@ const BlockStyled = styled(Block)`
     }
 `
 
-const Comment = ({ width, className }) => {
+const Comment = ({ width, current_saveDataId, className }) => {
     const route = useRoute()
     const saveDataIdQuery = route.querySaveDataId
 
@@ -23,14 +24,15 @@ const Comment = ({ width, className }) => {
     const [countSend, setCountSend] = React.useState(0)
 
     React.useEffect(() => {
-        (async function (Vars, saveDataIdQuery) {
+        (async function () {
+            setNeedLoading(true)
             let rawData = await Vars.fetchApi(Vars.urlGetComments(saveDataIdQuery))
             if (rawData.messenger === "successfully!") {
                 setComments(rawData.docs)
             }
             setNeedLoading(false)
-        })(Vars, saveDataIdQuery)
-    }, [countSend])
+        })()
+    }, [countSend, current_saveDataId])
 
     const handleSendBtn = async (content) => {
         setNeedLoading(true)
@@ -41,6 +43,7 @@ const Comment = ({ width, className }) => {
                 createdIn: saveDataIdQuery
             }
         })
+        Vars.getSocket().emit(`comment-sent`, saveDataIdQuery)
         setCountSend(pre => ++pre)
     }
 
@@ -64,4 +67,10 @@ const Comment = ({ width, className }) => {
     )
 }
 
-export default Comment
+const mapStoreToProps = (currentStore) => {
+    return {
+        current_saveDataId: currentStore.user.current_saveDataId
+    }
+}
+
+export default connect(mapStoreToProps)(Comment)

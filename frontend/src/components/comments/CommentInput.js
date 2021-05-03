@@ -14,7 +14,7 @@ const CommentInput = ({ handleSendBtn }) => {
     }
 
     const _handleSendBtnClick = () => {
-        if (!Vars.isUserSignIn() || !Vars.isUserHaveCurrentSaveDataId() || content.trim().length === 0) {
+        if (!Vars.isUserSignIn() || content.trim().length === 0) {
             Vars.showNotify(dispatch, "You can't comment!", Vars.sadImg)
             setContent("")
             return
@@ -38,4 +38,4 @@ const CommentInput = ({ handleSendBtn }) => {
     )
 }
 
-export default CommentInput
+export default (CommentInput)

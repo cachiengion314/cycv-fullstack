@@ -55,7 +55,7 @@ const MyCvPage = ({ width, dispatch, className }) => {
             route.push("/")
             setNeedLoading(false)
         }
-
+        
         controlStatus()
         // eslint-disable-next-line
     }, [saveDataIdQuery])
@@ -65,6 +65,7 @@ const MyCvPage = ({ width, dispatch, className }) => {
             <Loading minHeight="12rem" />
         )
     }
+
     return (
         <div className="root-container">
             <div className="left-container"></div>

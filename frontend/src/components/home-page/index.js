@@ -1,11 +1,11 @@
-import React from 'react';
-import AboutMe from "./about-me";
-import Block from "../../custom-components/Block";
-import BigTitle from "./big-title";
-import Description from "./description";
-import styled from "styled-components";
-import Vars from "../other-stuffs/Vars";
-import { connect } from 'react-redux';
+import React from 'react'
+import AboutMe from "./about-me"
+import Block from "../../custom-components/Block"
+import BigTitle from "./big-title"
+import Description from "./description"
+import styled from "styled-components"
+import Vars from "../other-stuffs/Vars"
+import { connect } from 'react-redux'
 
 const HomeBlock = styled(Block)`
     @media (max-width : ${props => props.mediaMaxWidth || "600px"}){
@@ -14,11 +14,11 @@ const HomeBlock = styled(Block)`
             width: 100%;
         }
     }
-`;
+`
 
 const Home = ({ width, tinyPreference_selectedTarget, className }) => {
-    const _leftBlock_width = "38%";
-    const _rightBlock_width = "62%";
+    const _leftBlock_width = "38%"
+    const _rightBlock_width = "62%"
 
     switch (tinyPreference_selectedTarget) {
         case Vars.SPLIT_LEFT_ICON:
@@ -62,4 +62,4 @@ const mapCurrentStoreToProps = (currentStore) => {
     }
 }
 
-export default connect(mapCurrentStoreToProps)(Home);
+export default connect(mapCurrentStoreToProps)(Home)

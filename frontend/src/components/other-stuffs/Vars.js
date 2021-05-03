@@ -1,20 +1,34 @@
-import ContactBlock from "../home-page/about-me/child-components/ContactBlock";
-import AboutBlock from "../home-page/about-me/child-components/AboutBlock";
-import HobbyBlock from "../home-page/about-me/child-components/HobbyBlock";
-import LocationBlock from "../home-page/about-me/child-components/LocationBlock";
-import EducationBlock from "../home-page/description/child-components/EducationBlock";
-import SkillBlock from "../home-page/description/child-components/SkillBlock";
-import ExpBlock from "../home-page/description/child-components/ExpBlock";
-import DescriptionComponent from "../home-page/description/DescriptionComponent";
-import AboutMeComponent from "../home-page/about-me/AboutMeComponent";
-import produce from "immer";
+import ContactBlock from "../home-page/about-me/child-components/ContactBlock"
+import AboutBlock from "../home-page/about-me/child-components/AboutBlock"
+import HobbyBlock from "../home-page/about-me/child-components/HobbyBlock"
+import LocationBlock from "../home-page/about-me/child-components/LocationBlock"
+import EducationBlock from "../home-page/description/child-components/EducationBlock"
+import SkillBlock from "../home-page/description/child-components/SkillBlock"
+import ExpBlock from "../home-page/description/child-components/ExpBlock"
+import DescriptionComponent from "../home-page/description/DescriptionComponent"
+import AboutMeComponent from "../home-page/about-me/AboutMeComponent"
+import produce from "immer"
 import axios from "../../api"
+import socketIOClient from "socket.io-client"
 
 class Vars {
     static setup() {
         return new Vars();
     }
     constructor() {
+        //////////////////
+        // socket io section //
+        //////////////////
+        this.endpoint = "http://localhost:3005"
+        this.connectionOptions = {
+            "force new connection": true,
+            "reconnectionAttempts": "Infinity",
+            "timeout": 10000,
+            "transports": ["websocket"]
+        }
+        this.getSocket = () => {
+            return socketIOClient(this.endpoint, this.connectionOptions)
+        }
         //////////////////
         // sign in/up section //
         //////////////////
@@ -54,23 +68,26 @@ class Vars {
             }
             return false
         }
-        this.resolveToken = (token = "token-token") => {
-            const userinfoArr = token.split("-")
-            const userId = userinfoArr[0]
-            const name = userinfoArr[1]
-            return { userId, name }
-        }
         this.saveUserInfoToLocal = (userId, password, name, savesData, current_saveDataId) => {
             let obj = this.getCycvObjInLocal()
-            obj.user.userId = userId
-            obj.user.password = password
-            obj.user.name = name
-            obj.user.savesData = savesData
-            obj.user.token = userId
+            obj.user.userId = userId ? userId : obj.user.userId
+            obj.user.password = password ? password : obj.user.password
+            obj.user.name = name ? name : obj.user.name
+            obj.user.savesData = savesData ? savesData : obj.user.savesData
+            obj.user.token = userId ? userId : obj.user.userId
             if (current_saveDataId) {
                 obj.user.current_saveDataId = current_saveDataId;
             }
             this.setCycvObjToLocal(obj)
+        }
+        this.socket_listenCommentedNotify = (dispatch) => {
+            this.getSocket().on("commented-notify", (savefileId) => {
+                const { savesData } = this.getUserInLocal()
+                const found = this.findCurrentSaveData(savefileId, savesData)
+                if (found) {
+                    console.log(`someone has just commeted on your cv name: ${found.saveData.name}! Please check it out`)
+                }
+            })
         }
         this.signIn = async (dispatch, token, name, password, isNeedApplySaveDataId = true) => {
             if (this.isUserSignIn()) {
@@ -80,6 +97,8 @@ class Vars {
                 if (current_saveDataId && isNeedApplySaveDataId) {
                     this.applySaveDataId(dispatch, current_saveDataId)
                 }
+
+                this.socket_listenCommentedNotify(dispatch)
                 return true
             }
 
@@ -91,6 +110,8 @@ class Vars {
                 this.applyUserId(dispatch, token, password, name)
                 this.updateSavesDataInStore(dispatch, data.docs)
                 this.saveUserInfoToLocal(token, password, name, data.docs)
+
+                this.socket_listenCommentedNotify(dispatch)
                 return true
             }
 
