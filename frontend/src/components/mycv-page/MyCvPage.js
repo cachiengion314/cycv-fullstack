@@ -1,21 +1,21 @@
-import React from 'react';
-import Preference from "../preference";
-import HomePage from "../home-page";
-import Vars from '../other-stuffs/Vars';
-import useRoute from "../authenticate/useRoute";
-import Loading from '../loading';
+import React from 'react'
+import Preference from "../preference"
+import HomePage from "../home-page"
+import Vars from '../other-stuffs/Vars'
+import useRoute from "../authenticate/useRoute"
+import Loading from '../loading'
+import Block from '../../custom-components/Block'
+import Comment from '.././comments'
 
 const MyCvPage = ({ width, dispatch, className }) => {
     const [needLoading, setNeedLoading] = React.useState(true)
     const route = useRoute()
-    const id = route.paramUserId
     const saveDataIdQuery = route.querySaveDataId
-    console.log(`paramUserId, saveDataIdQuery`, id, saveDataIdQuery)
 
     React.useEffect(() => {
         const controlStatus = async () => {
             if (Vars.isUserSignIn()) {
-                if (id && saveDataIdQuery && !Vars.isCurrentSaveDataId(saveDataIdQuery)) {
+                if (saveDataIdQuery && !Vars.isCurrentSaveDataId(saveDataIdQuery)) {
                     const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
                     if (!isSuccess) {
                         Vars.signIn(dispatch)
@@ -41,7 +41,7 @@ const MyCvPage = ({ width, dispatch, className }) => {
                 return
             }
 
-            if (id && saveDataIdQuery) {
+            if (saveDataIdQuery) {
                 const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
                 if (!isSuccess) {
                     route.push("/")
@@ -68,13 +68,15 @@ const MyCvPage = ({ width, dispatch, className }) => {
     return (
         <div className="root-container">
             <div className="left-container"></div>
-            <div className="center-container d-block">
+            <div className="center-container align-center">
                 <Preference height="2em" className="mb-3" />
                 <HomePage width="100%" className="mb-3" />
+                <Block width="60%" height="1px" background="darkblue" className="mt-5"></Block>
+                <Comment width="75%" className="mt-4 mb-4" />
             </div>
             <div className="right-container"></div>
         </div>
     )
 }
 
-export default MyCvPage;
+export default MyCvPage

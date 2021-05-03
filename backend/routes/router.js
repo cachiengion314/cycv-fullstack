@@ -12,7 +12,9 @@ router.get(`/api/weather`, controller.weather)
 // public api
 router.get(`/api/get-specific-savefile-showcase`, controller.getSpecificSaveFileShowcase)
 router.get(`/api/get-all-savefile-showcase`, controller.getAllSaveFileShowCase)
+router.get(`/api/get-comments`, controller.getComments)
 // private api
+router.post(`/api/add-comment`, isAuth, controller.addComment)
 router.get(`/api/get-all-savefile-showcase-of-user`, isAuth, controller.getAllSaveFileShowCaseOfUser)
 router.delete(`/api/remove-savefile-showcase`, isAuth, controller.removeSaveFileShowCase)
 router.put(`/api/update-savefile-showcase`, isAuth, controller.updateSaveFileShowCase)

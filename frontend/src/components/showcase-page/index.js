@@ -6,6 +6,15 @@ import UserCvThumpnail from './UserCvThumpnail'
 import Loading from '../loading'
 import Text from '../../custom-components/Text'
 
+const WelcomeText = () => {
+    return (
+        <Block width="100%">
+            <Text width="100%" textAlign="center" fontSize={Vars.FONT_SIZE_MD} className="text-primary">Welcome to create your CV show case</Text>
+            <Text width="100%" textAlign="center" fontSize={Vars.FONT_SIZE_SM} className="mb-4 text-secondary">All of public cv documents will be placed here</Text>
+        </Block>
+    )
+}
+
 const Index = ({ dispatch }) => {
     const [activePage, setActivePage] = React.useState(1)
     const [usersCvSavefiles, setUsersCvSavefiles] = React.useState([])
@@ -38,6 +47,7 @@ const Index = ({ dispatch }) => {
     if (needLoading) {
         return (
             <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" >
+                <WelcomeText />
                 <Block width="100%" flexbox={true} className="users-cv align-h-center mb-2">
                     <Loading minHeight="12rem" />
                 </Block>
@@ -49,6 +59,7 @@ const Index = ({ dispatch }) => {
     if (usersCvSavefiles.length === 0) {
         return (
             <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" >
+                <WelcomeText />
                 <Block width="100%" flexbox={true} className="users-cv align-h-center mb-2">
                     <Text fontSize={Vars.FONT_SIZE_SM}>There is no data</Text>
                 </Block>
@@ -59,8 +70,7 @@ const Index = ({ dispatch }) => {
 
     return (
         <Block style={{ minHeight: "12rem" }} width="100%" padding="1rem" >
-            <Text width="100%" textAlign="center" fontSize={Vars.FONT_SIZE_MD} className="text-primary">Welcome to create your CV show case</Text>
-            <Text width="100%" textAlign="center" fontSize={Vars.FONT_SIZE_SM} className="mb-4 text-secondary">All of public cv documents will be placed here</Text>
+            <WelcomeText />
             <Block width="100%" flexbox={true} className="users-cv align-h-center mb-2">
                 {
                     usersCvSavefiles.map(savefile => {
@@ -68,7 +78,7 @@ const Index = ({ dispatch }) => {
                             <UserCvThumpnail
                                 width="14rem" className="me-2 mb-2" key={savefile._id}
                                 createdBy={savefile.createdBy} fileName={savefile.saveData.name}
-                                saveDataId={savefile._id}
+                                saveDataId={savefile._id} thumbnailUrl={savefile.saveData.homePage.aboutMe[0].image}
                             />
                         )
                     })

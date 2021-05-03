@@ -257,6 +257,61 @@ exports.addSaveFileToShowCase = (request, response) => {
     })
 }
 //
+// /api/get-comments
+//
+exports.getComments = (request, response) => {
+    const { savefileId } = request.query
+    if (!savefileId) {
+        response.send({ messenger: "savefileId is empty!" })
+    }
+
+    Model.comment.find({
+        createdIn: savefileId
+    })
+        .populate({
+            path: "createdBy",
+            select: "email"
+        })
+        .exec(function (err, docs) {
+            if (err) {
+                console.log(err)
+                response.send({ messenger: err })
+                return
+            }
+            console.log(`getComment`, docs)
+            response.send({ docs, messenger: "successfully!" })
+        })
+}
+//
+// /api/remove-comment
+//
+exports.addComment = (request, response) => {
+    const { commentId } = request.query
+
+    Model.comment.findByIdAndDelete(commentId, function (err, doc) {
+        if (err) {
+            response.send({ messenger: err })
+            return
+        }
+        response.send({ messenger: "successfully!" })
+    })
+}
+//
+// /api/add-comment
+//
+exports.addComment = (request, response) => {
+    const id = request.user._id
+    const { content, createdIn } = request.body
+
+    Model.comment.create({ content, createdIn, createdBy: id }, function (err, doc) {
+        if (err) {
+            response.send({ messenger: err })
+            return
+        }
+        response.send({ doc, messenger: "successfully!" })
+    })
+}
+//
 //
 //
 //

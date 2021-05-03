@@ -299,7 +299,6 @@ class Vars {
                     ...option
                 })
                 let doc = res.data
-                console.log(`fetchApi.doc`, doc)
                 return doc
             } catch (err) {
                 console.log(`err`, err)
@@ -344,6 +343,12 @@ class Vars {
         }
         this.urlCreateUser = () => {
             return `/auth/signup`
+        }
+        this.urlGetComments = (savefileId) => {
+            return `/api/get-comments?savefileId=${savefileId}`
+        }
+        this.urlAddComment = () => {
+            return `/api/add-comment`
         }
         //////////////////
         // dispatch component section //

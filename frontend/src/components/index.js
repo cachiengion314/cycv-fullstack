@@ -3,7 +3,7 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-} from "react-router-dom";
+} from "react-router-dom"
 import HorizontalNav from "./navbar"
 import { Provider } from "react-redux"
 import store from "./redux-store"
@@ -13,7 +13,7 @@ import ModalCustom from "./modal/ModalCustom"
 import MyCvPage from "./mycv-page"
 import ShowCasePage from "./showcase-page"
 import AboutUs from './about-us'
-import Block from "../custom-components/Block";
+import Block from "../custom-components/Block"
 
 function App() {
   return (
@@ -35,7 +35,7 @@ function App() {
 
         <Block width="100%" className="cycv-footer align-center">
           <Block width="60%" height="1px" background="darkblue" className="mt-5"></Block>
-          <AboutUs width="100%" className="mt-5" />
+          <AboutUs width="100%" className="" />
         </Block>
 
       </Router>

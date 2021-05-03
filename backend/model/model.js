@@ -14,10 +14,6 @@ const CycUserSchema = new Schema({
     name: {
         type: String,
         default: "your_name_here",
-    },
-    savesData: {
-        type: Array,
-        default: []
     }
 }, { timestamps: true })
 
@@ -33,6 +29,25 @@ const CycShowCaseSaveFile = new Schema({
     }
 }, { timestamps: true })
 
+const CycvCommentSchema = new Schema({
+    createdIn: {
+        type: ObjectId,
+        required: true,
+        ref: "cycshowcasesavefile"
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    createdBy: {
+        type: ObjectId,
+        required: true,
+        ref: "cycvuser"
+    }
+}, { timestamps: true })
+
+exports.comment = model(`comment`, CycvCommentSchema)
+
 exports.cycShowCaseSaveFile = model(`cycshowcasesavefile`, CycShowCaseSaveFile)
 
-exports.cycvuser = model(`cycvuser`, CycUserSchema);
+exports.cycvuser = model(`cycvuser`, CycUserSchema)
