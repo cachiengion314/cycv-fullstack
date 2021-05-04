@@ -8,6 +8,10 @@ const InitialStore = {
         savesData: null,
         current_saveDataId: null,
     },
+    io: {
+        socket: null,
+        socketExecutor: 0
+    },
     modal: {
         notify: {
             isModalShow: false,
@@ -33,6 +37,11 @@ const InitialStore = {
             modalBody: null,
             width: null,
         },
+        toast: {
+            isToastShow: false,
+            content: "this is a small toast",
+            image: Vars.joyImg
+        }
     },
     addComponentsBtn: {
         isHide: false,

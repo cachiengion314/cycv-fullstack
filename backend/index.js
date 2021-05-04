@@ -12,35 +12,30 @@ app.use(cors())
 app.use(morgan(`tiny`))
 // database
 connectDB()
-
-const server = http.createServer(app)
-const io = socketIo(server)
-
 // body parser
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json({ limit: "2mb" }))
-
 // router
 app.use(`/`, Router);
 app.get(`/*`, (req, res) => {
     res.send(`Welcome to create-your-cv backend site`)
 })
-///////////
-///////////
+/////////// socket.io
+const server = http.createServer(app)
+const io = socketIo(server)
 io.on("connection", (socket) => {
-    console.log("New client has connected")
+    console.log("New client has just connected")
 
-    socket.on(`comment-sent`, (savefileId) => {
-        io.emit("commented-notify", savefileId)
+    socket.on(`comment-sent`, (data) => {
+        io.emit("commented-notify", data)
     })
 
     socket.on("disconnect", () => {
-        console.log("Client disconnected")
+        console.log("One of client has just disconnected")
     })
 })
 // listen
 const PORT = process.env.PORT || 3005
-
 server.listen(PORT, () => {
     console.log(`server listen at:`, PORT)
 })

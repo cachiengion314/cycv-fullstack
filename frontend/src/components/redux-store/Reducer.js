@@ -146,6 +146,17 @@ const Reducer = (previousStore, action) =>
         draft.modal.custom.modalBody = modalBody
         draft.modal.custom.width = width
     })
+    || action.type === Vars.TOAST_SHOW_EVENT &&
+    produce(previousStore, draft => {
+        const { content, image } = action.payload
+        draft.modal.toast.isToastShow = true
+        draft.modal.toast.content = content
+        draft.modal.toast.image = image
+    })
+    || action.type === Vars.TOAST_CLOSE_EVENT &&
+    produce(previousStore, draft => {
+        draft.modal.toast.isToastShow = false
+    })
     || action.type === Vars.SAVE_PREFERENCE_MODIFY_EVENT &&
     produce(previousStore, draft => {
         const { isCvPublic } = action.payload
@@ -213,6 +224,15 @@ const Reducer = (previousStore, action) =>
         const { saveData } = action.payload
         draft.preference = saveData.preference
         draft.homePage = saveData.homePage
+    })
+    || action.type === Vars.APPLY_SOCKET_EVENT &&
+    produce(previousStore, draft => {
+        const { socket } = action.payload
+        draft.io.socket = socket
+    })
+    || action.type === Vars.SOCKET_EXECUTOR_EVENT &&
+    produce(previousStore, draft => {
+        draft.io.socketExecutor++
     })
     || action.type === Vars.CLEAR_HOMEPAGE_EVENT &&
     produce(previousStore, draft => {

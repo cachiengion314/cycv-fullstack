@@ -14,6 +14,8 @@ import MyCvPage from "./mycv-page"
 import ShowCasePage from "./showcase-page"
 import AboutUs from './about-us'
 import Block from "../custom-components/Block"
+import Toast from "./modal/Toast"
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
@@ -22,6 +24,7 @@ function App() {
         <ModalCustom />
         <ModalOption />
         <ModalNotify />
+        <Toast />
 
         <Block width="100%" className="cycv-header">
           <HorizontalNav width="100%" height="3rem" />

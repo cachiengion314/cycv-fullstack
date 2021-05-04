@@ -7,7 +7,7 @@ import Loading from '../loading'
 import Block from '../../custom-components/Block'
 import Comment from '.././comments'
 
-const MyCvPage = ({ width, dispatch, className }) => {
+const MyCvPage = ({ dispatch }) => {
     const [needLoading, setNeedLoading] = React.useState(true)
     const route = useRoute()
     const saveDataIdQuery = route.querySaveDataId
@@ -19,23 +19,27 @@ const MyCvPage = ({ width, dispatch, className }) => {
                     const isSuccess = await Vars.fetch_applyTemperSaveData(dispatch, saveDataIdQuery)
                     if (!isSuccess) {
                         Vars.signIn(dispatch)
+                        Vars.socket_listenCommentedNotify(dispatch)
                         route.push(Vars.url_username_saveid())
                         setNeedLoading(false)
                         return
                     }
                     Vars.signIn(dispatch, null, null, null, false)
+                    Vars.socket_listenCommentedNotify(dispatch)
                     setNeedLoading(false)
                     return
                 }
 
                 if (Vars.isUserHaveCurrentSaveDataId()) {
                     Vars.signIn(dispatch);
+                    Vars.socket_listenCommentedNotify(dispatch)
                     route.push(Vars.url_username_saveid())
                     setNeedLoading(false)
                     return
                 }
 
                 Vars.signIn(dispatch)
+                Vars.socket_listenCommentedNotify(dispatch)
                 route.push(Vars.url_username())
                 setNeedLoading(false)
                 return
@@ -55,7 +59,7 @@ const MyCvPage = ({ width, dispatch, className }) => {
             route.push("/")
             setNeedLoading(false)
         }
-        
+
         controlStatus()
         // eslint-disable-next-line
     }, [saveDataIdQuery])

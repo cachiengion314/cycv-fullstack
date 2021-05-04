@@ -19,7 +19,6 @@ class Vars {
         //////////////////
         // socket io section //
         //////////////////
-        this.endpoint = "http://localhost:3005"
         this.connectionOptions = {
             "force new connection": true,
             "reconnectionAttempts": "Infinity",
@@ -27,7 +26,7 @@ class Vars {
             "transports": ["websocket"]
         }
         this.getSocket = () => {
-            return socketIOClient(this.endpoint, this.connectionOptions)
+            return socketIOClient(process.env.REACT_APP_BASE_URL, this.connectionOptions)
         }
         //////////////////
         // sign in/up section //
@@ -80,12 +79,21 @@ class Vars {
             }
             this.setCycvObjToLocal(obj)
         }
-        this.socket_listenCommentedNotify = (dispatch) => {
-            this.getSocket().on("commented-notify", (savefileId) => {
+        this.socket_listenCommentedNotify = (dispatch, socket) => {
+            if (!socket) {
+                socket = this.getSocket()
+                this.applySocket(dispatch, socket)
+            }
+            socket.on("commented-notify", (data) => {
+                const { savefileId, commentContent } = data
                 const { savesData } = this.getUserInLocal()
                 const found = this.findCurrentSaveData(savefileId, savesData)
                 if (found) {
-                    console.log(`someone has just commeted on your cv name: ${found.saveData.name}! Please check it out`)
+                    this.showToast(dispatch,
+                        `someone has just commented "${commentContent}" on your cv ${found.saveData.name}! Please check it out`,
+                        this.ideaImg
+                    )
+                    this.socketExecutor(dispatch)
                 }
             })
         }
@@ -98,7 +106,6 @@ class Vars {
                     this.applySaveDataId(dispatch, current_saveDataId)
                 }
 
-                this.socket_listenCommentedNotify(dispatch)
                 return true
             }
 
@@ -111,7 +118,6 @@ class Vars {
                 this.updateSavesDataInStore(dispatch, data.docs)
                 this.saveUserInfoToLocal(token, password, name, data.docs)
 
-                this.socket_listenCommentedNotify(dispatch)
                 return true
             }
 
@@ -366,6 +372,9 @@ class Vars {
             return `/auth/signup`
         }
         this.urlGetComments = (savefileId) => {
+            if (!savefileId) {
+                return `/api/get-comments`
+            }
             return `/api/get-comments?savefileId=${savefileId}`
         }
         this.urlAddComment = () => {
@@ -496,9 +505,38 @@ class Vars {
                 }
             })
         }
+        this.applySocket = (dispatch, socket) => {
+            dispatch({
+                type: this.APPLY_SOCKET_EVENT,
+                payload: {
+                    socket
+                }
+            })
+        }
+        this.socketExecutor = (dispatch, socketExecutor) => {
+            dispatch({
+                type: this.SOCKET_EXECUTOR_EVENT,
+                payload: {
+                    socketExecutor
+                }
+            })
+        }
         //////////////////
         // modal section //
         ////////////////// 
+        this.closeToast = (dispatch) => {
+            dispatch({
+                type: this.TOAST_CLOSE_EVENT,
+            })
+        }
+        this.showToast = (dispatch, content = "Custom modal", image = this.joyImg) => {
+            dispatch({
+                type: this.TOAST_SHOW_EVENT,
+                payload: {
+                    content, image
+                }
+            })
+        }
         this.showCustomModal = (dispatch, content = "Custom modal", width, modalBody = null) => {
             dispatch({
                 type: this.CUSTOM_SHOW_EVENT,
@@ -506,7 +544,7 @@ class Vars {
                     title: this.CUSTOM_SHOW_EVENT,
                     content, modalBody, width
                 }
-            });
+            })
         }
         this.showChooseAvatarOption = (dispatch, content = "Option modal", images = [this.phoneImg], chooseAction = (imgUrl) => { }) => {
             dispatch({
@@ -515,7 +553,7 @@ class Vars {
                     title: this.OPTION_SHOW_AVATAR_EVENT,
                     content, images, chooseAction
                 }
-            });
+            })
         }
         this.showLoading = (dispatch = () => { }, content = "Please wait", onTimeout = () => { }, fakeLoadingTime, image = this.sandClockImg) => {
             dispatch({
@@ -524,7 +562,7 @@ class Vars {
                     content, onTimeout, fakeLoadingTime, image,
                     title: this.LOADING_SHOW_EVENT
                 }
-            });
+            })
         }
         this.showYesNo = (dispatch = () => { }, content = "Yes or No modal", yesAction = () => { }, noAction = () => { }, image = this.questionImg) => {
             dispatch({
@@ -533,7 +571,7 @@ class Vars {
                     content, image, yesAction, noAction,
                     title: this.YESNO_SHOW_EVENT
                 }
-            });
+            })
         }
         this.showNotify = (dispatch, content = "Notify modal", image = this.happyImg) => {
             dispatch({
@@ -542,7 +580,7 @@ class Vars {
                     content, image,
                     title: this.NOTIFY_SHOW_EVENT
                 }
-            });
+            })
         }
         this.closeModal = (dispatch, target = null) => {
             dispatch({
@@ -550,7 +588,7 @@ class Vars {
                 payload: {
                     target
                 }
-            });
+            })
         }
         //////////////////
         // dragging feature section //
@@ -678,11 +716,17 @@ class Vars {
     get MODAL_CLOSE_EVENT() {
         return "MODAL_CLOSE_EVENT";
     }
+    get TOAST_CLOSE_EVENT() {
+        return "TOAST_CLOSE_EVENT";
+    }
     get CUSTOM_SHOW_EVENT() {
         return "CUSTOM_SHOW_EVENT";
     }
     get NOTIFY_SHOW_EVENT() {
         return "NOTIFY_SHOW_EVENT";
+    }
+    get TOAST_SHOW_EVENT() {
+        return "TOAST_SHOW_EVENT";
     }
     get OPTION_SHOW_AVATAR_EVENT() {
         return "OPTION_SHOW_AVATAR_EVENT";
@@ -734,6 +778,12 @@ class Vars {
     }
     get APPLY_TEMPER_SAVE_DATA_EVENT() {
         return "APPLY_TEMPER_SAVE_DATA_EVENT";
+    }
+    get APPLY_SOCKET_EVENT() {
+        return "APPLY_SOCKET_EVENT";
+    }
+    get SOCKET_EXECUTOR_EVENT() {
+        return "SOCKET_EXECUTOR_EVENT";
     }
     //////////////////
     // value section //

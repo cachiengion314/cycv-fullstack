@@ -11,7 +11,7 @@ const Form = styled.form`
     width: ${props => props.width || "100%"};
 `;
 
-const SignUp = ({ width, isModalShow, dispatch, className }) => {
+const SignUp = ({ width, isModalShow, socket, dispatch, className }) => {
     const [userName, setUserName] = React.useState("");
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
@@ -43,6 +43,7 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
                 const token = rawData.token
                 Vars.closeModal(dispatch)
                 Vars.signIn(dispatch, token, name, password)
+                Vars.socket_listenCommentedNotify(dispatch, socket)
                 Vars.showNotify(dispatch, `Created account ${rawData.messenger}`)
                 // redirect route
                 route.push(Vars.url_username())
@@ -70,7 +71,10 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
 }
 
 const mapStoreToProps = (currentStore) => {
-    return { isModalShow: currentStore.modal.custom.isModalShow }
+    return {
+        isModalShow: currentStore.modal.custom.isModalShow,
+        socket: currentStore.io.socket
+    }
 }
 
 export default connect(mapStoreToProps)(SignUp);

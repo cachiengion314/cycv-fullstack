@@ -15,13 +15,13 @@ const BlockStyled = styled(Block)`
     }
 `
 
-const Comment = ({ width, current_saveDataId, className }) => {
+const Comment = ({ width, socket, socketExecutor, current_saveDataId, className }) => {
     const route = useRoute()
     const saveDataIdQuery = route.querySaveDataId
 
     const [comments, setComments] = React.useState([])
     const [needLoading, setNeedLoading] = React.useState(true)
-    const [countSend, setCountSend] = React.useState(0)
+    const [reloadCommentExecutor, setReloadCommentExecutor] = React.useState(0)
 
     React.useEffect(() => {
         (async function () {
@@ -32,7 +32,7 @@ const Comment = ({ width, current_saveDataId, className }) => {
             }
             setNeedLoading(false)
         })()
-    }, [countSend, current_saveDataId])
+    }, [reloadCommentExecutor, current_saveDataId, socketExecutor])
 
     const handleSendBtn = async (content) => {
         setNeedLoading(true)
@@ -43,8 +43,8 @@ const Comment = ({ width, current_saveDataId, className }) => {
                 createdIn: saveDataIdQuery
             }
         })
-        Vars.getSocket().emit(`comment-sent`, saveDataIdQuery)
-        setCountSend(pre => ++pre)
+        socket.emit(`comment-sent`, { savefileId: saveDataIdQuery, commentContent: content })
+        setReloadCommentExecutor(pre => ++pre)
     }
 
     return (
@@ -69,7 +69,9 @@ const Comment = ({ width, current_saveDataId, className }) => {
 
 const mapStoreToProps = (currentStore) => {
     return {
-        current_saveDataId: currentStore.user.current_saveDataId
+        current_saveDataId: currentStore.user.current_saveDataId,
+        socket: currentStore.io.socket,
+        socketExecutor: currentStore.io.socketExecutor
     }
 }
 

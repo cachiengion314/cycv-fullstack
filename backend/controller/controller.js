@@ -263,6 +263,7 @@ exports.getComments = (request, response) => {
     const { savefileId } = request.query
     if (!savefileId) {
         response.send({ messenger: "savefileId is empty!" })
+        return
     }
 
     Model.comment.find({

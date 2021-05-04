@@ -12,7 +12,7 @@ const Form = styled.form`
     width: ${props => props.width || "100%"};
 `
 
-const SignIn = ({ width, isModalShow, dispatch, className }) => {
+const SignIn = ({ width, isModalShow, socket, dispatch, className }) => {
     const [email, setEmail] = React.useState("")
     const [password, setPassword] = React.useState("")
     const route = useRoute()
@@ -42,6 +42,7 @@ const SignIn = ({ width, isModalShow, dispatch, className }) => {
                 const name = rawData.name
                 Vars.closeModal(dispatch)
                 Vars.signIn(dispatch, token, name, password)
+                Vars.socket_listenCommentedNotify(dispatch, socket)
                 Vars.showNotify(dispatch, `Sign in with account ${rawData.messenger}`)
                 // redirect route
                 if (Vars.getUserInLocal().current_saveDataId) {
@@ -77,7 +78,10 @@ SignIn.propTypes = {
 }
 
 const mapStoreToProps = (currentStore) => {
-    return { isModalShow: currentStore.modal.custom.isModalShow }
+    return {
+        isModalShow: currentStore.modal.custom.isModalShow,
+        socket: currentStore.io.socket,
+    }
 }
 
 export default connect(mapStoreToProps)(SignIn);
