@@ -62,6 +62,7 @@ exports.getAllSaveFileShowCase = async (request, response) => {
     const _pageSize = Number(pageSize) || 8
     const _page = Number(page) || 1
     const skip = (_page - 1) * _pageSize
+    console.log(`skip-limit`, skip, _pageSize)
 
     try {
         const docs = await Model.cycShowCaseSaveFile.aggregate(
@@ -80,15 +81,15 @@ exports.getAllSaveFileShowCase = async (request, response) => {
                         ],
                         allSaveFiles: [
                             {
+                                $match: {
+                                    "saveData.preference.savePreference.isCvPublic": true
+                                }
+                            },
+                            {
                                 $skip: skip
                             },
                             {
                                 $limit: _pageSize
-                            },
-                            {
-                                $match: {
-                                    "saveData.preference.savePreference.isCvPublic": true
-                                }
                             },
                             {
                                 $lookup: {

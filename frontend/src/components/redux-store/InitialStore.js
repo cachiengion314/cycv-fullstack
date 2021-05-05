@@ -54,7 +54,7 @@ const InitialStore = {
             selectedTarget: Vars.SPLIT_LEFT_ICON,
         },
         savePreference: {
-            isCvPublic: false
+            isCvPublic: true
         }
     },
     homePage: {

@@ -74,16 +74,19 @@ const MyCvPage = ({ dispatch }) => {
     }
 
     return (
-        <div className="root-container">
-            <div className="left-container"></div>
-            <div className="center-container align-center">
-                <Preference height="2em" className="mb-3" />
-                <HomePage width="100%" className="mb-3" />
-                <Block width="60%" height="1px" background="darkblue" className="mt-5"></Block>
-                <Comment width="75%" className="mt-4 mb-4" />
+        <div className="align-center">
+            <div className="root-container">
+                <div className="left-container"></div>
+                <div className="center-container align-center">
+                    <Preference height="2em" className="mb-3" />
+                    <HomePage width="100%" className="mb-3" />
+                    <Block width="60%" height="1px" background="darkblue" className="mt-5"></Block>
+                </div>
+                <div className="right-container"></div>
             </div>
-            <div className="right-container"></div>
+            <Comment width="75%" className="mt-4 mb-4" />
         </div>
+
     )
 }
 
