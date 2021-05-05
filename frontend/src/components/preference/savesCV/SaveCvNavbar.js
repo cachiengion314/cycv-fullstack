@@ -135,6 +135,7 @@ const SaveCvNavbar = ({ width, userId, password, current_saveDataId, savesData, 
                         return;
                     }
                     Vars.showNotify(dispatch, `Something went wrong!`, Vars.sadImg)
+                    Vars.signOut(dispatch)
                 }, 500)
             }
 

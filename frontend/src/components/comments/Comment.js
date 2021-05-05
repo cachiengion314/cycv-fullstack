@@ -15,7 +15,7 @@ const BlockStyled = styled(Block)`
     }
 `
 
-const Comment = ({ width, socket, socketExecutor, current_saveDataId, className }) => {
+const Comment = ({ width, dispatch, socket, socketExecutor, current_saveDataId, className }) => {
     const route = useRoute()
     const saveDataIdQuery = route.querySaveDataId
 
@@ -36,13 +36,17 @@ const Comment = ({ width, socket, socketExecutor, current_saveDataId, className 
 
     const handleSendBtn = async (content) => {
         setNeedLoading(true)
-        await Vars.fetchApi(Vars.urlAddComment(), {
+        const success = await Vars.fetchApi(Vars.urlAddComment(), {
             method: "POST",
             data: {
                 content,
                 createdIn: saveDataIdQuery
             }
         })
+        if (!success) {
+            Vars.signOut(dispatch)
+            return
+        }
         socket.emit(`comment-sent`, { savefileId: saveDataIdQuery, commentContent: content })
         setReloadCommentExecutor(pre => ++pre)
     }

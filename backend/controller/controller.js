@@ -195,20 +195,27 @@ exports.removeSaveFileShowCase = (request, response) => {
 
     Model.cycShowCaseSaveFile.findOneAndDelete(
         {
-            _id: ObjectId(savefileId),
+            _id: ObjectId(savefileId)
         },
         function (err, doc) {
             if (!err) {
-                response.send({ doc, messenger: "successfully!" });
-                return;
+                response.send({ doc, messenger: "successfully!" })
+                Model.comment.deleteMany({ createdIn: ObjectId(savefileId) }, { new: true }, function (err) {
+                    if (err) {
+                        console.log("delete fail with err:", err)
+                        return
+                    }
+                    console.log("All comments deleted")
+                })
+                return
             }
             if (err) {
                 console.log(`messenger`, err)
-                response.status(404).send({ messenger: "your info are so wrong!" });
-                return;
+                response.status(404).send({ messenger: "your info are so wrong!" })
+                return
             }
-            console.log(`Can't find anything due to invalid password or id!`)
-            response.send({ messenger: "Can't find anything due to invalid password or id!" })
+            console.log(`Can't find anything due to invalid id!`)
+            response.send({ messenger: "Can't find anything due to invalid id!" })
         })
 }
 //

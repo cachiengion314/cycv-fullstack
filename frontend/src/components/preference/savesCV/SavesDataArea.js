@@ -60,6 +60,7 @@ const SavesDataArea = ({ width, savesData, userId, password, current_saveDataId,
                     return;
                 }
                 Vars.showNotify(dispatch, "Something went wrong!", Vars.sadImg)
+                Vars.signOut(dispatch)
                 console.log(`responseData:`, rawData)
             }, 300)
         })
