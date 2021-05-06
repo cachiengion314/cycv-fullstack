@@ -35,6 +35,10 @@ const Comment = ({ width, dispatch, socket, socketExecutor, current_saveDataId, 
     }, [reloadCommentExecutor, current_saveDataId, socketExecutor])
 
     const handleSendBtn = async (content) => {
+        if (!saveDataIdQuery) {
+            Vars.showToast(dispatch, "You cannot comment in an unsaved file! If you want to comment, lets save your file first!", Vars.angryImg)
+            return
+        }
         setNeedLoading(true)
         const success = await Vars.fetchApi(Vars.urlAddComment(), {
             method: "POST",
