@@ -1,8 +1,8 @@
 const {
-    Schema, model
+    Schema, model, ObjectId
 } = require(`mongoose`);
 
-const customSchema = new Schema({
+const CycUserSchema = new Schema({
     email: {
         type: String,
         required: true
@@ -13,12 +13,41 @@ const customSchema = new Schema({
     },
     name: {
         type: String,
-        default: "user",
-    },
-    savesData: {
-        type: Array,
-        default: []
+        default: "your_name_here",
     }
-}, { timestamps: true });
+}, { timestamps: true })
 
-exports.cycvuser = model(`cycvuser`, customSchema);
+const CycShowCaseSaveFile = new Schema({
+    saveData: {
+        type: Object,
+        required: true
+    },
+    createdBy: {
+        type: ObjectId,
+        required: true,
+        ref: "cycvuser"
+    }
+}, { timestamps: true })
+
+const CycvCommentSchema = new Schema({
+    createdIn: {
+        type: ObjectId,
+        required: true,
+        ref: "cycshowcasesavefile"
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    createdBy: {
+        type: ObjectId,
+        required: true,
+        ref: "cycvuser"
+    }
+}, { timestamps: true })
+
+exports.comment = model(`comment`, CycvCommentSchema)
+
+exports.cycShowCaseSaveFile = model(`cycshowcasesavefile`, CycShowCaseSaveFile)
+
+exports.cycvuser = model(`cycvuser`, CycUserSchema)

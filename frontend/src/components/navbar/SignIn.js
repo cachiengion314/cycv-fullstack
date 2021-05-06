@@ -6,16 +6,16 @@ import Text from '../../custom-components/Text';
 import Button from '../../custom-components/Button';
 import { connect } from "react-redux";
 import PropTypes from 'prop-types';
-
+import useRoute from "../authenticate/useRoute";
 
 const Form = styled.form`
     width: ${props => props.width || "100%"};
-`;
+`
 
-const SignIn = ({ width, isModalShow, dispatch, className }) => {
-    const [email, setEmail] = React.useState("");
-    const [password, setPassword] = React.useState("");
-    
+const SignIn = ({ width, isModalShow, socket, dispatch, className }) => {
+    const [email, setEmail] = React.useState("")
+    const [password, setPassword] = React.useState("")
+    const route = useRoute()
 
     React.useEffect(() => {
         if (isModalShow) {
@@ -27,31 +27,33 @@ const SignIn = ({ width, isModalShow, dispatch, className }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!Vars.authenticateUserInput(dispatch, email, password)) {
-            return;
+            return
         }
         Vars.showLoading(dispatch, `Please wait...!`, async () => {
             let currentUser = {
                 email, password
-            };
-            console.log(`currentUser`, currentUser)
+            }
             const rawData = await Vars.fetchApi(Vars.urlLogin(), {
                 method: "POST",
                 data: (currentUser)
-            });
+            })
             if (rawData && rawData.messenger === "successfully!") {
                 const token = rawData.token
                 const name = rawData.name
-                console.log(`signin.handleSubmit.rawData`, rawData)
-                
                 Vars.closeModal(dispatch)
                 Vars.signIn(dispatch, token, name, password)
+                Vars.socket_listenCommentedNotify(dispatch, socket)
                 Vars.showNotify(dispatch, `Sign in with account ${rawData.messenger}`)
-        
-                
-                return;
+                // redirect route
+                if (Vars.getUserInLocal().current_saveDataId) {
+                    route.push(Vars.url_username_saveid(name, Vars.Vars.getUserInLocal().current_saveDataId))
+                    return
+                }
+                route.push(Vars.url_username(name))
+                return
             }
             Vars.closeModal(dispatch);
-            Vars.showNotify(dispatch, `Some thing went wrong!`);
+            Vars.showNotify(dispatch, `Some thing went wrong!`)
         }, 500)
     }
     return (
@@ -76,7 +78,10 @@ SignIn.propTypes = {
 }
 
 const mapStoreToProps = (currentStore) => {
-    return { isModalShow: currentStore.modal.custom.isModalShow }
+    return {
+        isModalShow: currentStore.modal.custom.isModalShow,
+        socket: currentStore.io.socket,
+    }
 }
 
 export default connect(mapStoreToProps)(SignIn);

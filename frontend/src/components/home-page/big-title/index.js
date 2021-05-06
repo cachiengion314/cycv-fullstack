@@ -7,7 +7,7 @@ import EditableText from '../../other-stuffs/EditableText';
 import EditableArea from '../../other-stuffs/EditableArea';
 
 const BigTitleBlock = styled(Block)`
-
+    display: block;
 `;
 
 const BigTitle = ({ className, width, height, REAL_NAME, TAG_NAME, dispatch }) => {

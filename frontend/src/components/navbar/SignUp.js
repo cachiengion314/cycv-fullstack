@@ -5,16 +5,17 @@ import Vars from '../other-stuffs/Vars';
 import Text from '../../custom-components/Text';
 import Button from '../../custom-components/Button';
 import { connect } from "react-redux";
+import useRoute from "../authenticate/useRoute";
 
 const Form = styled.form`
     width: ${props => props.width || "100%"};
 `;
 
-const SignUp = ({ width, isModalShow, dispatch, className }) => {
+const SignUp = ({ width, isModalShow, socket, dispatch, className }) => {
     const [userName, setUserName] = React.useState("");
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
-    
+    const route = useRoute();
 
     React.useEffect(() => {
         if (isModalShow) {
@@ -30,7 +31,7 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
             return;
         }
         Vars.showLoading(dispatch, `Please wait...!`, async () => {
-            const name = userName;
+            const name = userName.replace(/\s+/g, "-")
             const newUser = {
                 name, email, password
             }
@@ -38,17 +39,17 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
                 method: "POST",
                 data: (newUser)
             })
-            console.log(`signup.handleSubmit.rawData`, rawData)
             if (rawData && rawData.messenger === "successfully!") {
                 const token = rawData.token
                 Vars.closeModal(dispatch)
                 Vars.signIn(dispatch, token, name, password)
+                Vars.socket_listenCommentedNotify(dispatch, socket)
                 Vars.showNotify(dispatch, `Created account ${rawData.messenger}`)
                 // redirect route
-            
+                route.push(Vars.url_username())
                 return;
             }
-            Vars.showNotify(dispatch, `Some thing went wrong!`);
+            Vars.showNotify(dispatch, `Some thing went wrong!`)
         }, 500)
     }
     return (
@@ -70,7 +71,10 @@ const SignUp = ({ width, isModalShow, dispatch, className }) => {
 }
 
 const mapStoreToProps = (currentStore) => {
-    return { isModalShow: currentStore.modal.custom.isModalShow }
+    return {
+        isModalShow: currentStore.modal.custom.isModalShow,
+        socket: currentStore.io.socket
+    }
 }
 
 export default connect(mapStoreToProps)(SignUp);

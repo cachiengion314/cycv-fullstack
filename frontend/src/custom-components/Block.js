@@ -13,7 +13,7 @@ const Div = styled.div`
     z-index: ${props => props.zIndex || "auto"};
 `;
 
-const Block = ({ className, reference, zIndex, id, onDrop, onDragEnd, onDragLeave, onDragOver, onDragStart, draggable, display, padding, width, height, border, borderRadius, background, flexbox, children }) => {
+const Block = ({ style, className, onClick, reference, zIndex, id, onDrop, onDragEnd, onDragLeave, onDragOver, onDragStart, draggable, display, padding, width, height, border, borderRadius, background, flexbox, children }) => {
     return (
         <Div
             id={id}
@@ -29,10 +29,12 @@ const Block = ({ className, reference, zIndex, id, onDrop, onDragEnd, onDragLeav
             draggable={draggable}
             onDragLeave={onDragLeave}
             onDragEnd={onDragEnd}
+            onClick={onClick}
             background={background}
             border={border}
             borderRadius={borderRadius}
             className={className}
+            style={style}
         >
             {children}
         </Div>

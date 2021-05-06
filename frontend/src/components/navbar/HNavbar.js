@@ -6,6 +6,7 @@ import Vars from '../other-stuffs/Vars'
 import { connect } from "react-redux"
 import SignUp from './SignUp'
 import SignIn from './SignIn'
+import useRoute from "../authenticate/useRoute"
 
 const HNavbarStyled = styled.div`
     display: block;
@@ -24,7 +25,7 @@ const HoverBlockStyled = styled(Block)`
     float: left;
     background-color: inherit;
     &:hover{
-        background-color: lightyellow;
+        background-color: #d9ffbb;
         transition-property: background-color;
         transition: all .5s ease;
     }
@@ -54,9 +55,11 @@ const SingleNavBlock = ({ className, onClick, width, textLineHeight, content }) 
     )
 }
 
-const HNavbar = ({ className, userId, name, dispatch, top, width, height }) => {
+const HNavbar = ({ className, userId, name, socket, dispatch, top, width, height }) => {
+    const route = useRoute()
+
     const handleMyCVClick = () => {
-        Vars.redirectToHomePage();
+        Vars.redirectToHomePage()
     }
 
     const handleSignIn = () => {
@@ -75,7 +78,8 @@ const HNavbar = ({ className, userId, name, dispatch, top, width, height }) => {
     }
     const handleSignOut = () => {
         Vars.showYesNo(dispatch, "Are you sure want to sign out?", () => {
-            Vars.signOut(dispatch);
+            Vars.signOut(dispatch)
+            socket.disconnect()
         })
     }
     const handleNameClick = () => {
@@ -83,7 +87,7 @@ const HNavbar = ({ className, userId, name, dispatch, top, width, height }) => {
     }
 
     const handleShowCaseClick = () => {
-        
+        route.push("/show-case")
     }
 
     return (
@@ -107,7 +111,11 @@ const HNavbar = ({ className, userId, name, dispatch, top, width, height }) => {
 }
 
 const mapStoreToProps = (currentStore) => {
-    return { userId: currentStore.user.userId, name: currentStore.user.name }
+    return {
+        userId: currentStore.user.userId,
+        name: currentStore.user.name,
+        socket: currentStore.io.socket
+    }
 }
 
 export default connect(mapStoreToProps)(HNavbar);

@@ -3,12 +3,12 @@ import Vars from '../other-stuffs/Vars'
 
 const SinglePagination = ({ isActive, onClick, children }) => {
     return (
-        <li onClick={onClick} className={`page-item ${isActive && "active"}`}><a className="page-link" href="#">{children}</a></li>
+        <li onClick={onClick} className={`page-item ${isActive && "active"}`}><div className="page-link">{children}</div></li>
     )
 }
 
-const Pagination = ({ activePage, handlePagiClick, totalItem, className }) => {
-    const max = React.useMemo(() => Math.ceil(totalItem / Vars.ITEMS_PER_PAGE), [totalItem])
+const Pagination = ({ activePage, handlePagiClick, totalItems, className }) => {
+    const max = React.useMemo(() => Math.ceil(totalItems / Vars.PAGE_SIZE), [totalItems])
     let items = []
     for (let i = 1; i <= max; ++i) {
         items.push(

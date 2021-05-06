@@ -1,11 +1,33 @@
-import produce from "immer";
+import ContactBlock from "../home-page/about-me/child-components/ContactBlock"
+import AboutBlock from "../home-page/about-me/child-components/AboutBlock"
+import HobbyBlock from "../home-page/about-me/child-components/HobbyBlock"
+import LocationBlock from "../home-page/about-me/child-components/LocationBlock"
+import EducationBlock from "../home-page/description/child-components/EducationBlock"
+import SkillBlock from "../home-page/description/child-components/SkillBlock"
+import ExpBlock from "../home-page/description/child-components/ExpBlock"
+import DescriptionComponent from "../home-page/description/DescriptionComponent"
+import AboutMeComponent from "../home-page/about-me/AboutMeComponent"
+import produce from "immer"
 import axios from "../../api"
+import socketIOClient from "socket.io-client"
 
 class Vars {
     static setup() {
         return new Vars();
     }
     constructor() {
+        //////////////////
+        // socket io section //
+        //////////////////
+        this.connectionOptions = {
+            "force new connection": true,
+            "reconnectionAttempts": "Infinity",
+            "timeout": 10000,
+            "transports": ["websocket"]
+        }
+        this.getSocket = () => {
+            return socketIOClient(process.env.REACT_APP_BASE_URL, this.connectionOptions)
+        }
         //////////////////
         // sign in/up section //
         //////////////////
@@ -24,79 +46,78 @@ class Vars {
             const isPasswordInputValid = this.checkPasswordInput(password_input);
             if (!isEmailInputValid) {
                 this.showNotify(dispatch, `You need to check your email again! There must be one digit atleast or your providing are probably fake!`, this.boringImg);
-                return false;
+                return false
             }
             if (!isPasswordInputValid) {
                 this.showNotify(dispatch, `Check your password again! There must be one digit and one uppercase atleast or your password will not strong enough!`, this.angryImg);
-                return false;
+                return false
             }
-            return true;
+            return true
         }
         this.checkPasswordInput = (password_input) => {
-            let checkPassword_1_regexp = /^\w/i;
-            let checkPassword_2_regexp = /\p{Nd}/u;
-            let checkPassword_3_regexp = /\p{Lu}/u;
-            let checkPassword_4_regexp = /.{6,}/g;
-            let result1 = checkPassword_1_regexp.test(password_input);
-            let result2 = checkPassword_2_regexp.test(password_input);
-            let result3 = checkPassword_3_regexp.test(password_input);
-            let result4 = checkPassword_4_regexp.test(password_input);
-            if (result1 && result2 && result3 && result4) {
+            if (/^\S{3,}/.test(password_input)) {
                 return true;
             }
-            return false;
+            return false
         }
         this.checkEmailInput = (email_input) => {
-            let checkemail_1_regexp = /^\w/i;
-            let checkemail_2_regexp = /.com$/;
-            let checkemail_3_regexp = /\p{Nd}/u;
-            let checkemail_4_regexp = /\@.+/;
-            let result1 = checkemail_1_regexp.test(email_input);
-            let result2 = checkemail_2_regexp.test(email_input);
-            let result3 = checkemail_3_regexp.test(email_input);
-            let result4 = checkemail_4_regexp.test(email_input);
-            if (result1 && result2 && result3 && result4) {
-                return true;
+            let result1 = /^[a-z]\S+@\S+/.test(email_input);
+            if (result1) {
+                return true
             }
-            return false;
-        }
-        this.resolveToken = (token = "token-token") => {
-            const userinfoArr = token.split("-");
-            const userId = userinfoArr[0];
-            const name = userinfoArr[1];
-            return { userId, name }
+            return false
         }
         this.saveUserInfoToLocal = (userId, password, name, savesData, current_saveDataId) => {
-            let obj = this.getCycvObjInLocal();
-            obj.user.userId = userId
-            obj.user.password = password
-            obj.user.name = name
-            obj.user.savesData = savesData
-            obj.user.token = userId
+            let obj = this.getCycvObjInLocal()
+            obj.user.userId = userId ? userId : obj.user.userId
+            obj.user.password = password ? password : obj.user.password
+            obj.user.name = name ? name : obj.user.name
+            obj.user.savesData = savesData ? savesData : obj.user.savesData
+            obj.user.token = userId ? userId : obj.user.userId
             if (current_saveDataId) {
                 obj.user.current_saveDataId = current_saveDataId;
             }
-            this.setCycvObjToLocal(obj);
+            this.setCycvObjToLocal(obj)
         }
-        this.signIn = async (dispatch, token, name, password) => {
+        this.socket_listenCommentedNotify = (dispatch, socket) => {
+            if (!socket) {
+                socket = this.getSocket()
+                this.applySocket(dispatch, socket)
+            }
+            socket.on("commented-notify", (data) => {
+                const { savefileId, commentContent } = data
+                const { savesData } = this.getUserInLocal()
+                const found = this.findCurrentSaveData(savefileId, savesData)
+                if (found) {
+                    this.showToast(dispatch,
+                        `someone has just commented "${commentContent}" on your cv ${found.saveData.name}! Please check it out`,
+                        this.ideaImg
+                    )
+                    this.socketExecutor(dispatch)
+                }
+            })
+        }
+        this.signIn = async (dispatch, token, name, password, isNeedApplySaveDataId = true) => {
             if (this.isUserSignIn()) {
-                const { password, name, savesData, current_saveDataId, token, userId } = this.getUserInLocal()
+                const { password, name, savesData, current_saveDataId, token } = this.getUserInLocal()
                 this.applyUserId(dispatch, token, password, name)
                 this.updateSavesDataInStore(dispatch, savesData)
-                if (current_saveDataId) {
+                if (current_saveDataId && isNeedApplySaveDataId) {
                     this.applySaveDataId(dispatch, current_saveDataId)
                 }
+
                 return true
             }
 
             let obj = this.getCycvObjInLocal()
             obj.user.token = token
             this.setCycvObjToLocal(obj)
-            const data = await this.fetchApi(this.urlGetSavesData(token, password))
+            const data = await this.fetchApi(this.urlGetSavesData())
             if (data && data.messenger === "successfully!") {
                 this.applyUserId(dispatch, token, password, name)
-                this.updateSavesDataInStore(dispatch, data.doc.savesData)
-                this.saveUserInfoToLocal(token, password, name, data.doc.savesData)
+                this.updateSavesDataInStore(dispatch, data.docs)
+                this.saveUserInfoToLocal(token, password, name, data.docs)
+
                 return true
             }
 
@@ -104,91 +125,95 @@ class Vars {
         }
         this.signOut = (dispatch, isNeedToClearUrl = true) => {
             // clear user in redux store
-            this.clearUserSectionInStore(dispatch);
+            this.clearUserSectionInStore(dispatch)
             // clear in local
-            this.setCycvObjToLocal(cycv_objDefault);
+            this.setCycvObjToLocal(cycv_objDefault)
             // clear homePage in redux store
-            this.clearHomepage(dispatch);
+            this.clearHomepage(dispatch)
             // reload
             if (isNeedToClearUrl) {
-                this.redirectToHomePage();
+                this.redirectToHomePage()
             }
         }
-        this.fetch_applyTemperSaveData = async (dispatch, userId, saveDataId) => {
-            let rawData = await this.fetchApi(this.urlGetSpecifySaveData(userId, saveDataId));
+        this.fetch_applyTemperSaveData = async (dispatch, saveDataId) => {
+            let rawData = await this.fetchApi(this.urlGetSpecifySaveData(saveDataId))
             console.log(`applySampleSaveData.rawData`, rawData)
             if (rawData && rawData.messenger === "successfully!") {
-                this.applyTemperSaveData(dispatch, rawData.doc.saveData);
-                return true;
+                this.applyTemperSaveData(dispatch, rawData.doc.saveData)
+                return true
             }
-            return false;
+            return false
         }
-        this.isOwnerOfUserId_saveDataId = (userId, saveDataId) => {
-            const user = this.getUserInLocal();
-            const _userId = user.userId;
-            const _saveDataId = user.current_saveDataId;
-            if (_userId === userId && _saveDataId === saveDataId) {
-                return true;
+        this.isCurrentSaveDataId = (saveDataId) => {
+            const _saveDataId = this.getUserInLocal().current_saveDataId
+            if (_saveDataId === saveDataId) {
+                return true
             }
-            return false;
+            return false
+        }
+        this.isUserHaveCurrentSaveDataId = () => {
+            if (this.getUserInLocal().current_saveDataId) {
+                return true
+            }
+            return false
         }
         this.isUserSignIn = () => {
             if (this.getCycvObjInLocal().user.userId) {
-                return true;
+                return true
             }
-            return false;
+            return false
         }
         this.getUserInLocal = () => {
-            return this.getCycvObjInLocal().user;
+            return this.getCycvObjInLocal().user
         }
         this.setCycvObjToLocal = (obj) => {
             if (!localStorage.getItem(this.KEY_CYCV_OBJ)) {
-                localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(cycv_objDefault));
+                localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(cycv_objDefault))
             }
-            localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(obj));
+            localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(obj))
         }
         this.getCycvObjInLocal = () => {
             if (!localStorage.getItem(this.KEY_CYCV_OBJ)) {
-                localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(cycv_objDefault));
+                localStorage.setItem(this.KEY_CYCV_OBJ, JSON.stringify(cycv_objDefault))
             }
-            return JSON.parse(localStorage.getItem(this.KEY_CYCV_OBJ));
+            return JSON.parse(localStorage.getItem(this.KEY_CYCV_OBJ))
         }
         //////////////////
         // utility section //
         //////////////////
         this.removeSaveDataInSavesData = (savesData, removedSaveDataId) => {
             return produce(savesData, draft => {
-                let _index = savesData.findIndex(elt => elt._saveDataId === removedSaveDataId);
-                draft.splice(_index, 1);
-            });
+                let _index = savesData.findIndex(elt => elt._id === removedSaveDataId)
+                draft.splice(_index, 1)
+            })
         }
         this.addNewSaveDataToSavesData = (savesData, saveData) => {
             return produce(savesData, draft => {
-                draft.push(saveData);
-            });
+                draft.push(saveData)
+            })
         }
         this.updateCurrentSavesData = (currentSaveData, savesData, newSaveData) => {
-            const { homePage, preference } = newSaveData;
+            const { homePage, preference } = newSaveData
             const modifiedSaveData = produce(currentSaveData, draft => {
-                draft.homePage = homePage;
-                draft.preference = preference;
-            });
+                draft.homePage = homePage
+                draft.preference = preference
+            })
             const modifiedSavesData = produce(savesData, draft => {
-                const indexOfCurrentSaveData = savesData.findIndex(elt => elt._saveDataId === currentSaveData._saveDataId);
-                draft[indexOfCurrentSaveData].saveData.homePage = modifiedSaveData.homePage;
-                draft[indexOfCurrentSaveData].saveData.preference = modifiedSaveData.preference;
-            });
-            return modifiedSavesData;
+                const indexOfCurrentSaveData = savesData.findIndex(elt => elt._id === currentSaveData._id)
+                draft[indexOfCurrentSaveData].saveData.homePage = modifiedSaveData.homePage
+                draft[indexOfCurrentSaveData].saveData.preference = modifiedSaveData.preference
+            })
+            return modifiedSavesData
         }
         this.findCurrentSaveData = (current_saveDataId, savesData) => {
-            let currentSaveData;
+            let currentSaveData
             if (savesData && current_saveDataId) {
-                currentSaveData = savesData.find(savefile => savefile._saveDataId === current_saveDataId);
+                currentSaveData = savesData.find(savefile => savefile._id === current_saveDataId)
             }
             if (currentSaveData) {
-                return currentSaveData;
+                return currentSaveData
             }
-            return null;
+            return null
         }
         //////////////////
         this.createModalBody = (ModalComponent) => {
@@ -212,25 +237,87 @@ class Vars {
         }
         //////////////////
         this.calculatePartsIn = (ADDRESS = "homePage/") => {
-            let partsArr = ADDRESS.split(`/`);
+            let partsArr = ADDRESS.split(`/`)
             partsArr = partsArr.map(elt => {
                 if (!isNaN(Number(elt))) {
-                    return Number(elt);
+                    return Number(elt)
                 }
-                return elt;
+                return elt
             });
-            return partsArr;
+            return partsArr
         }
         this.findIndexOfComponentIn = (higherComponent, CONPONENT_ID) => {
-            const searchConponent = higherComponent.find(component => component._id === CONPONENT_ID);
-            const indexOfSearchComponent = higherComponent.indexOf(searchConponent);
-            return indexOfSearchComponent;
+            const searchConponent = higherComponent.find(component => component._id === CONPONENT_ID)
+            const indexOfSearchComponent = higherComponent.indexOf(searchConponent)
+            return indexOfSearchComponent
+        }
+        //////////////////
+        // reserve function section //
+        //////////////////
+        this.getFunctionFrom = (functionName) => {
+            switch (functionName) {
+                case this.CONTACT_BLOCK_FUNCTION:
+                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
+                        return (
+                            <ContactBlock _id={this._id} key={this._id} image={this.image} firstContent={this.firstContent} secondContent={this.secondContent} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
+                        )
+                    }
+                case this.ABOUT_BLOCK_FUNCTION:
+                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
+                        return (
+                            <AboutBlock _id={this._id} key={this._id} content={this.content} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
+                        )
+                    }
+                case this.HOBBY_BLOCK_FUNCTION:
+                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
+                        return (
+                            <HobbyBlock _id={this._id} key={this._id} image={this.image} content={this.content} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
+                        )
+                    }
+                case this.LOCATION_BLOCK_FUNCTION:
+                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-4") {
+                        return (
+                            <LocationBlock _id={this._id} key={this._id} latitude={this.latitude} longitude={this.longitude} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
+                        )
+                    }
+                case this.ABOUTME_COMPONENT_FUNCTION:
+                    return function (width = "100%", className = "mb-3") {
+                        return (
+                            <AboutMeComponent _id={this._id} key={this._id} width={width} className={className} />
+                        )
+                    }
+
+                case this.EDUCATION_BLOCK_FUNCTION:
+                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
+                        return (
+                            <EducationBlock _id={this._id} key={this._id} width="100%" degreeName={this.degreeName} universityName={this.universityName} year={this.year} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
+                        )
+                    }
+                case this.SKILL_BLOCK_FUNCTION:
+                    return function (isHide, dispatch, indexOfHigherComponent, className = "mb-3") {
+                        return (
+                            <SkillBlock _id={this._id} key={this._id} percent={this.percent} content={this.content} subContent={this.subContent} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} width={this.width} className={className} />
+                        )
+                    }
+                case this.EXP_BLOCK_FUNCTION:
+                    return function (isHide, dispatch, indexOfHigherComponent, width = "100%", className = "mb-3") {
+                        return (
+                            <ExpBlock _id={this._id} key={this._id} jobPosition={this.jobPosition} companyInfo={this.companyInfo} years={this.years} moreInfo={this.moreInfo} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} width={width} className={className} />
+                        )
+                    }
+                case this.DESCRIPTION_COMPONENT_FUNCTION:
+                    return function (width = "100%", className = "mb-3") {
+                        return (
+                            <DescriptionComponent _id={this._id} key={this._id} width={width} className={className} />
+                        )
+                    }
+            }
         }
         //////////////////
         // api section //
         //////////////////
         this.redirectToHomePage = () => {
-            window.location.replace("/");
+            window.location.replace("/")
         }
         this.fetchApi = async (url, option = { method: "GET" }) => {
             try {
@@ -239,45 +326,59 @@ class Vars {
                     ...option
                 })
                 let doc = res.data
-                console.log(`fetchApi.doc`, doc)
                 return doc
             } catch (err) {
                 console.log(`err`, err)
                 return false
             }
         }
-        this.url_userid_saveid = (userId, saveDataId) => {
-            if (!userId && !saveDataId) {
-                return `/${this.getUserInLocal().userId}?saveDataId=${this.getUserInLocal().current_saveDataId}`;
+        this.url_username_saveid = (name, saveDataId) => {
+            if (!name && !saveDataId) {
+                return `/${this.getUserInLocal().name}?saveDataId=${this.getUserInLocal().current_saveDataId}`
             }
-            return `/${userId}?saveDataId=${saveDataId}`;
+            return `/${name}?saveDataId=${saveDataId}`
         }
-        this.url_userid = (userId) => {
-            if (!userId) {
-                return `/${this.getUserInLocal().userId}`;
+        this.url_username = (name) => {
+            if (name) {
+                return `/${name}`
             }
-            return `/${userId}`;
+            return `/${this.getUserInLocal().name}`
         }
-        this.urlRemoveSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234", saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
-            return `/api/remove-savedata/${token}?password=${userpassword}&saveDataId=${saveDataId}`;
+        this.urlRemoveSaveData = (saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
+            return `/api/remove-savefile-showcase?savefileId=${saveDataId}`
         }
-        this.urlAddSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234") => {
-            return `/api/add-savedata/${token}?password=${userpassword}`;
+        this.urlAddSaveData = () => {
+            return `/api/add-savefile-showcase`
         }
-        this.urlUpdateSaveData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234", saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
-            return `/api/update-savedata/${token}?password=${userpassword}&saveDataId=${saveDataId}`;
+        this.urlUpdateSaveData = (saveDataId = "6054ef85bc1f5d37c70ae6d2") => {
+            return `/api/update-savefile-showcase?savefileId=${saveDataId}`
         }
-        this.urlGetSavesData = (token = "605375c41fe11a29ecaa21fe", userpassword = "1234") => {
-            return `/api/get-savesdata/${token}?password=${userpassword}`;
+        this.urlAllPublicSavefiles = (page) => {
+            if (page) {
+                return `/api/get-all-savefile-showcase?page=${page}&pageSize=${this.PAGE_SIZE}`
+            }
+            return `/api/get-all-savefile-showcase`
         }
-        this.urlGetSpecifySaveData = (token = "605375c41fe11a29ecaa21fe", saveDataId = "123") => {
-            return `/api/get-savesdata/${token}?saveDataId=${saveDataId}`;
+        this.urlGetSavesData = () => {
+            return `/api/get-all-savefile-showcase-of-user`
+        }
+        this.urlGetSpecifySaveData = (saveFileId = "123") => {
+            return `/api/get-specific-savefile-showcase?savefileId=${saveFileId}`
         }
         this.urlLogin = () => {
-            return `/auth/login`;
+            return `/auth/login`
         }
         this.urlCreateUser = () => {
-            return `/auth/signup`;
+            return `/auth/signup`
+        }
+        this.urlGetComments = (savefileId) => {
+            if (!savefileId) {
+                return `/api/get-comments`
+            }
+            return `/api/get-comments?savefileId=${savefileId}`
+        }
+        this.urlAddComment = () => {
+            return `/api/add-comment`
         }
         //////////////////
         // dispatch component section //
@@ -288,7 +389,7 @@ class Vars {
                 payload: {
                     isHide: false
                 }
-            });
+            })
         }
         this.hideHomePageButtons = (dispatch) => {
             dispatch({
@@ -296,7 +397,7 @@ class Vars {
                 payload: {
                     isHide: true
                 }
-            });
+            })
         }
         this.changeComponentsIndex = (dispatch, nextPositionIndex, address) => {
             dispatch({
@@ -304,7 +405,7 @@ class Vars {
                 payload: {
                     nextPositionIndex, address
                 }
-            });
+            })
         }
         this.tinyIconToggle = (dispatch, selectedTarget) => {
             dispatch({
@@ -312,7 +413,15 @@ class Vars {
                 payload: {
                     selectedTarget
                 }
-            });
+            })
+        }
+        this.savePreferenceModify = (dispatch, isCvPublic) => {
+            dispatch({
+                type: this.SAVE_PREFERENCE_MODIFY_EVENT,
+                payload: {
+                    isCvPublic
+                }
+            })
         }
         this.tinyPreferenceToggle = (dispatch, isActive) => {
             dispatch({
@@ -320,7 +429,7 @@ class Vars {
                 payload: {
                     isActive
                 }
-            });
+            })
         }
         this.editingText = (dispatch, content, address, _id) => {
             dispatch({
@@ -328,7 +437,7 @@ class Vars {
                 payload: {
                     content, address, _id
                 }
-            });
+            })
         }
         this.addComponentIn = (dispatch, addedIdComponent, address = "homePage/") => {
             dispatch({
@@ -337,7 +446,7 @@ class Vars {
                     content: addedIdComponent,
                     address: address
                 }
-            });
+            })
         }
         this.removeComponentIn = (dispatch, address = "homePage/") => {
             dispatch({
@@ -345,20 +454,20 @@ class Vars {
                 payload: {
                     address
                 }
-            });
+            })
         }
         this.clearHomepage = (dispatch) => {
             dispatch({
                 type: this.CLEAR_HOMEPAGE_EVENT,
-            });
-            let obj = this.getCycvObjInLocal();
-            obj.user.current_saveDataId = null;
-            this.setCycvObjToLocal(obj);
+            })
+            let obj = this.getCycvObjInLocal()
+            obj.user.current_saveDataId = null
+            this.setCycvObjToLocal(obj)
         }
         this.clearUserSectionInStore = (dispatch) => {
             dispatch({
                 type: this.CLEAR_USER_SECTION_IN_STORE_EVENT,
-            });
+            })
         }
         this.updateSavesDataInStore = (dispatch, savesData, saveDataId) => {
             dispatch({
@@ -366,7 +475,7 @@ class Vars {
                 payload: {
                     savesData, saveDataId
                 }
-            });
+            })
         }
         this.applySaveDataId = (dispatch, saveDataId) => {
             dispatch({
@@ -374,15 +483,19 @@ class Vars {
                 payload: {
                     saveDataId
                 }
-            });
+            })
         }
         this.applyUserId = (dispatch, userId, password, name, saveDataId, savesData) => {
             dispatch({
                 type: this.APPLY_USER_ID_EVENT,
                 payload: {
-                    userId, password, name, saveDataId, savesData
+                    userId,
+                    password,
+                    name,
+                    saveDataId,
+                    savesData
                 }
-            });
+            })
         }
         this.applyTemperSaveData = (dispatch, saveData) => {
             dispatch({
@@ -390,11 +503,40 @@ class Vars {
                 payload: {
                     saveData
                 }
-            });
+            })
+        }
+        this.applySocket = (dispatch, socket) => {
+            dispatch({
+                type: this.APPLY_SOCKET_EVENT,
+                payload: {
+                    socket
+                }
+            })
+        }
+        this.socketExecutor = (dispatch, socketExecutor) => {
+            dispatch({
+                type: this.SOCKET_EXECUTOR_EVENT,
+                payload: {
+                    socketExecutor
+                }
+            })
         }
         //////////////////
         // modal section //
         ////////////////// 
+        this.closeToast = (dispatch) => {
+            dispatch({
+                type: this.TOAST_CLOSE_EVENT,
+            })
+        }
+        this.showToast = (dispatch, content = "Custom modal", image = this.joyImg) => {
+            dispatch({
+                type: this.TOAST_SHOW_EVENT,
+                payload: {
+                    content, image
+                }
+            })
+        }
         this.showCustomModal = (dispatch, content = "Custom modal", width, modalBody = null) => {
             dispatch({
                 type: this.CUSTOM_SHOW_EVENT,
@@ -402,7 +544,7 @@ class Vars {
                     title: this.CUSTOM_SHOW_EVENT,
                     content, modalBody, width
                 }
-            });
+            })
         }
         this.showChooseAvatarOption = (dispatch, content = "Option modal", images = [this.phoneImg], chooseAction = (imgUrl) => { }) => {
             dispatch({
@@ -411,7 +553,7 @@ class Vars {
                     title: this.OPTION_SHOW_AVATAR_EVENT,
                     content, images, chooseAction
                 }
-            });
+            })
         }
         this.showLoading = (dispatch = () => { }, content = "Please wait", onTimeout = () => { }, fakeLoadingTime, image = this.sandClockImg) => {
             dispatch({
@@ -420,7 +562,7 @@ class Vars {
                     content, onTimeout, fakeLoadingTime, image,
                     title: this.LOADING_SHOW_EVENT
                 }
-            });
+            })
         }
         this.showYesNo = (dispatch = () => { }, content = "Yes or No modal", yesAction = () => { }, noAction = () => { }, image = this.questionImg) => {
             dispatch({
@@ -429,7 +571,7 @@ class Vars {
                     content, image, yesAction, noAction,
                     title: this.YESNO_SHOW_EVENT
                 }
-            });
+            })
         }
         this.showNotify = (dispatch, content = "Notify modal", image = this.happyImg) => {
             dispatch({
@@ -438,7 +580,7 @@ class Vars {
                     content, image,
                     title: this.NOTIFY_SHOW_EVENT
                 }
-            });
+            })
         }
         this.closeModal = (dispatch, target = null) => {
             dispatch({
@@ -446,7 +588,7 @@ class Vars {
                 payload: {
                     target
                 }
-            });
+            })
         }
         //////////////////
         // dragging feature section //
@@ -461,7 +603,7 @@ class Vars {
             const partsArr = this.calculatePartsIn(address);
             switch (partsArr.length) {
                 case 3:
-                    // example in case 3: `homePage/aboutMe/1`
+                    // example for case 3: `homePage/aboutMe/1`
                     const draggingBlockIndex = this.findIndexOfComponentIn(higherComponent, draggingBlockId);
                     const higherComponentName = partsArr[1];
                     if (higherComponentName.toUpperCase() === draggingHigherComponentName.toUpperCase()) {
@@ -559,6 +701,9 @@ class Vars {
     get TINY_PREFERENCE_TOGGLE_EVENT() {
         return "TINY_PREFERENCE_TOGGLE_EVENT";
     }
+    get SAVE_PREFERENCE_MODIFY_EVENT() {
+        return "SAVE_PREFERENCE_MODIFY_EVENT";
+    }
     get TINY_ICON_TOGGLE_EVENT() {
         return "TINY_ICON_TOGGLE_EVENT";
     }
@@ -571,11 +716,17 @@ class Vars {
     get MODAL_CLOSE_EVENT() {
         return "MODAL_CLOSE_EVENT";
     }
+    get TOAST_CLOSE_EVENT() {
+        return "TOAST_CLOSE_EVENT";
+    }
     get CUSTOM_SHOW_EVENT() {
         return "CUSTOM_SHOW_EVENT";
     }
     get NOTIFY_SHOW_EVENT() {
         return "NOTIFY_SHOW_EVENT";
+    }
+    get TOAST_SHOW_EVENT() {
+        return "TOAST_SHOW_EVENT";
     }
     get OPTION_SHOW_AVATAR_EVENT() {
         return "OPTION_SHOW_AVATAR_EVENT";
@@ -628,6 +779,12 @@ class Vars {
     get APPLY_TEMPER_SAVE_DATA_EVENT() {
         return "APPLY_TEMPER_SAVE_DATA_EVENT";
     }
+    get APPLY_SOCKET_EVENT() {
+        return "APPLY_SOCKET_EVENT";
+    }
+    get SOCKET_EXECUTOR_EVENT() {
+        return "SOCKET_EXECUTOR_EVENT";
+    }
     //////////////////
     // value section //
     //////////////////
@@ -670,7 +827,7 @@ class Vars {
     get FONT_SIZE_SUPER_BIG() {
         return "4.1rem";
     }
-    get ITEMS_PER_PAGE() {
+    get PAGE_SIZE() {
         return 8
     }
     //////////////////

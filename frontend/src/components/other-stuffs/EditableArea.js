@@ -1,7 +1,6 @@
 import React from 'react';
 import Text from "../../custom-components/Text";
 import styled from "styled-components";
-import Input from "../../custom-components/Input";
 import Button from "../../custom-components/Button";
 import Vars from "../other-stuffs/Vars";
 
