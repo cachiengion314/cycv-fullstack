@@ -277,7 +277,7 @@ class Vars {
                 case this.LOCATION_BLOCK_FUNCTION:
                     return function (isHide, dispatch, indexOfHigherComponent, className = "mb-4") {
                         return (
-                            <LocationBlock _id={this._id} key={this._id} latitude={this.latitude} longitude={this.longitude} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
+                            <LocationBlock _id={this._id} key={this._id} latitude={this.latitude} longitude={this.longitude} IsDayTime={this.IsDayTime} temperature={this.temperature} skyStatus={this.skyStatus} isHide={isHide} dispatch={dispatch} indexOfHigherComponent={indexOfHigherComponent} className={className} />
                         )
                     }
                 case this.ABOUTME_COMPONENT_FUNCTION:
@@ -379,6 +379,9 @@ class Vars {
         }
         this.urlAddComment = () => {
             return `/api/add-comment`
+        }
+        this.urlGetWeather = (latitude, longitude) => {
+            return `/api/weather?latitude=${latitude}&longitude=${longitude}`
         }
         //////////////////
         // dispatch component section //

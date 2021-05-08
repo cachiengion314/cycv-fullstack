@@ -1,9 +1,9 @@
-import React from 'react';
-import styled from "styled-components";
+import React from 'react'
+import styled from "styled-components"
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
-import Block from '../../../../custom-components/Block';
-import Vars from "../../../other-stuffs/Vars";
-import Button from "../../../../custom-components/Button";
+import Block from '../../../../custom-components/Block'
+import Vars from "../../../other-stuffs/Vars"
+import Button from "../../../../custom-components/Button"
 
 const BlockModified = styled(Block)`
     position: relative;
@@ -12,7 +12,7 @@ const BlockModified = styled(Block)`
             width : 100%;
         }
     }
-`;
+`
 
 const FloatButton = styled(Button)`
     position: absolute;
@@ -20,56 +20,63 @@ const FloatButton = styled(Button)`
     right: 0;
     height: 1rem;
     background-color: red;
-`;
+`
 
 const LocationMarker = ({ _id, indexOfHigherComponent, latitude, longitude, dispatch }) => {
-    const [position, setPosition] = React.useState(null);
-    const [isClicked, setIsClicked] = React.useState(false);
+    const [position, setPosition] = React.useState(null)
+    const [isClicked, setIsClicked] = React.useState(false)
 
     const map = useMapEvents({
         click(e) {
             if (!isClicked) {
                 Vars.showYesNo(dispatch, `Do you want to locate your self?`, () => {
-                    Vars.showLoading(dispatch, `Please wait for us to find your location`);
-                    map.locate();
-                });
+                    Vars.showToast(dispatch, `Please wait for us to find your location`)
+                    map.locate()
+                })
             }
         },
         locationfound(e) {
-            setIsClicked(true);
-            Vars.showNotify(dispatch, `Congratulation! We've just found your location in this map!`);
-            // console.log(`latlong`, e.latlng) // latlong LatLng {lat: 21.015507, lng: 105.829033}
-            const { lat, lng } = e.latlng;
-            latitude = lat;
-            longitude = lng;
-            Vars.editingText(dispatch, latitude, `homePage/aboutMe/${indexOfHigherComponent}/childs/${_id}/latitude`, _id);
-            Vars.editingText(dispatch, longitude, `homePage/aboutMe/${indexOfHigherComponent}/childs/${_id}/longitude`, _id);
-            setPosition(e.latlng);
-            map.flyTo(e.latlng, map.getZoom());
+            setIsClicked(true)
+            Vars.showNotify(dispatch, `Congratulation! We've just found your location in this map!`)
+            const { lat, lng } = e.latlng
+            latitude = lat
+            longitude = lng
+            Vars.editingText(dispatch, latitude, `homePage/aboutMe/${indexOfHigherComponent}/childs/${_id}/latitude`, _id)
+            Vars.editingText(dispatch, longitude, `homePage/aboutMe/${indexOfHigherComponent}/childs/${_id}/longitude`, _id)
+            setPosition(e.latlng)
+            map.flyTo(e.latlng, map.getZoom())
         },
     })
     return position === null ? null : (
         <Marker position={position}>
             <Popup>
-                You are here. <br /> Heheeehehe.
+                Please waiting....!
             </Popup>
         </Marker>
     )
 }
 
-const LocationBlock = ({ _id, latitude, longitude, isHide, dispatch, indexOfHigherComponent, className }) => {
-    const getWeatherFromApi = (latitude, longitude) => {
-        fetch(`/api/weather?latitude=${latitude}&longitude=${longitude}`)
-            .then(async (response) => {
-                let rawDt = await response.json();
-                console.log(`raw data in weather api`, rawDt);
-            });
+const LocationBlock = ({ _id, latitude, longitude, IsDayTime, temperature, skyStatus, isHide, dispatch, indexOfHigherComponent, className }) => {
+    React.useEffect(() => {
+        const setCurrentWeatherMarkerInfo = async (latitude, longitude) => {
+            const url_getCurrentWeather = Vars.urlGetWeather(latitude, longitude)
+            const rawData = await Vars.fetchApi(url_getCurrentWeather)
+            const weatherInfo = rawData.doc
+            if (rawData.messenger === "successfully!") {
+                Vars.editingText(dispatch, weatherInfo.IsDayTime, `homePage/aboutMe/${indexOfHigherComponent}/childs/${_id}/IsDayTime`, _id)
+                Vars.editingText(dispatch, weatherInfo.temperature, `homePage/aboutMe/${indexOfHigherComponent}/childs/${_id}/temperature`, _id)
+                Vars.editingText(dispatch, weatherInfo.skyStatus, `homePage/aboutMe/${indexOfHigherComponent}/childs/${_id}/skyStatus`, _id)
+                return
+            }
+        }
+        setCurrentWeatherMarkerInfo(latitude, longitude)
     }
+        , [longitude])
 
     const handleRemove = () => {
         Vars.removeComponentIn(dispatch,
             `homePage/aboutMe/${indexOfHigherComponent}/childs/${_id}`
-        );
+        )
     }
 
     return (
@@ -90,7 +97,9 @@ const LocationBlock = ({ _id, latitude, longitude, isHide, dispatch, indexOfHigh
                     ||
                     <Marker position={{ lat: latitude, lng: longitude }}>
                         <Popup>
-                            You are here. <br /> Heheeehehe.
+                            I am here at {IsDayTime ? "day" : "night"} <br />
+                            and the temperature is {temperature} celsius with <br />
+                            the sky is quite {skyStatus}
                         </Popup>
                     </Marker>
                 }
@@ -100,4 +109,4 @@ const LocationBlock = ({ _id, latitude, longitude, isHide, dispatch, indexOfHigh
     )
 }
 
-export default (LocationBlock);
+export default (LocationBlock)

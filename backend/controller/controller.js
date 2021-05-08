@@ -7,9 +7,13 @@ const bcrypt = require('bcryptjs')
 // /api/weather
 //
 exports.weather = async (request, response) => {
-    const accuApiKey = process.env.KEY_ACCU_API;
-    const { latitude, longitude } = request.query;
+    const accuApiKey = process.env.KEY_ACCU_API
+    const { latitude, longitude } = request.query
     console.log(`lat, long, accuapikey`, latitude, longitude, accuApiKey)
+    if (!latitude || !longitude) {
+        response.status(404).send({ messenger: "your info is so wrong!" })
+        return
+    }
 
     const weatherPosApiUrl = `http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey=${accuApiKey}&q=${latitude}%2C${longitude}`;
     let axios_posResponse;
@@ -17,20 +21,20 @@ exports.weather = async (request, response) => {
         axios_posResponse = await axios.get(weatherPosApiUrl);
     } catch (err) {
         console.log(`err from fetch pos`, err)
-        response.status(404).send({ messenger: "your info is so wrong!" });
-        return;
+        response.status(404).send({ messenger: "your info is so wrong!" })
+        return
     }
     const rawposKeyDt = axios_posResponse.data;
     console.log(`rawposKeyDt`, rawposKeyDt)
-    const posKey = rawposKeyDt[`Key`];
+    const posKey = rawposKeyDt[`Key`]
 
-    const weatherApiUrl = `http://dataservice.accuweather.com/currentconditions/v1/${posKey}?apikey=${accuApiKey}`;
-    let axios_weatherResponse;
+    const weatherApiUrl = `http://dataservice.accuweather.com/currentconditions/v1/${posKey}?apikey=${accuApiKey}`
+    let axios_weatherResponse
     try {
-        axios_weatherResponse = await axios.get(weatherApiUrl);
+        axios_weatherResponse = await axios.get(weatherApiUrl)
     } catch (err) {
         console.log(`err from fetch weather`, err)
-        response.status(404).send({ messenger: "your info is so wrong!" });
+        response.status(404).send({ messenger: "your info is so wrong!" })
         return;
     }
     let rawWeatherDt = axios_weatherResponse.data;
@@ -50,9 +54,9 @@ exports.weather = async (request, response) => {
             timestamp: Date.now(),
             locationKey: posKey,
         },
-        messenger: "successfully"
+        messenger: "successfully!"
     };
-    response.json(finalData);
+    response.json(finalData)
 }
 //
 // /api/get-all-savefile-showcase

@@ -36,6 +36,9 @@ const AboutMeComponent = ({ _id, width, className, isHide, AboutMe, dispatch }) 
             name: "Map",
             latitude: null,
             longitude: null,
+            IsDayTime: "",
+            temperature: "",
+            skyStatus: "",
             render: Vars.LOCATION_BLOCK_FUNCTION,
         }
     ]

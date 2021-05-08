@@ -4,8 +4,19 @@ import { useDispatch, useSelector } from 'react-redux'
 import Vars from '../other-stuffs/Vars'
 
 const BoostrapToast = () => {
+    const [timeoutId, setTimeoutId] = React.useState(0)
     const dispatch = useDispatch()
     const { isToastShow, content, image } = useSelector(state => state.modal.toast)
+
+    React.useEffect(() => {
+        if (isToastShow) {
+            clearTimeout(timeoutId)
+            const id = setTimeout(() => {
+                Vars.closeToast(dispatch)
+            }, 3500)
+            setTimeoutId(id)
+        }
+    }, [isToastShow])
 
     return (
         <Toast
