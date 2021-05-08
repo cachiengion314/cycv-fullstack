@@ -15,12 +15,6 @@ const ModalCustom = ({ isModalShow, width, title, dispatch, content, modalBody, 
         }
     }
 
-    const renderModalBody = () => {
-        if (modalBody) {
-            return modalBody.render();
-        }
-    }
-
     return (
         <Modal
             width={width} isModalShow={isModalShow}
@@ -49,4 +43,4 @@ const mapCurrentStoreTopProps = (currentStore) => {
     }
 }
 
-export default connect(mapCurrentStoreTopProps)(ModalCustom);
+export default connect(mapCurrentStoreTopProps)(ModalCustom)

@@ -15,10 +15,9 @@ const BlockStyled = styled(Block)`
     }
 `
 
-const Comment = ({ width, dispatch, socket, socketExecutor, current_saveDataId, className }) => {
+const Comment = ({ width, dispatch, socket, socketExecutor, className }) => {
     const route = useRoute()
     const saveDataIdQuery = route.querySaveDataId
-
     const [comments, setComments] = React.useState([])
     const [needLoading, setNeedLoading] = React.useState(true)
     const [reloadCommentExecutor, setReloadCommentExecutor] = React.useState(0)
@@ -29,10 +28,13 @@ const Comment = ({ width, dispatch, socket, socketExecutor, current_saveDataId, 
             let rawData = await Vars.fetchApi(Vars.urlGetComments(saveDataIdQuery))
             if (rawData.messenger === "successfully!") {
                 setComments(rawData.docs)
+                setNeedLoading(false)
+                return
             }
             setNeedLoading(false)
+            setComments([])
         })()
-    }, [reloadCommentExecutor, current_saveDataId, socketExecutor])
+    }, [reloadCommentExecutor, saveDataIdQuery, socketExecutor])
 
     const handleSendBtn = async (content) => {
         if (!saveDataIdQuery) {
@@ -77,7 +79,6 @@ const Comment = ({ width, dispatch, socket, socketExecutor, current_saveDataId, 
 
 const mapStoreToProps = (currentStore) => {
     return {
-        current_saveDataId: currentStore.user.current_saveDataId,
         socket: currentStore.io.socket,
         socketExecutor: currentStore.io.socketExecutor
     }

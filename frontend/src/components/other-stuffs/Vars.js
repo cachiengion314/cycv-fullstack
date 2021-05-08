@@ -516,12 +516,9 @@ class Vars {
                 }
             })
         }
-        this.socketExecutor = (dispatch, socketExecutor) => {
+        this.socketExecutor = (dispatch) => {
             dispatch({
                 type: this.SOCKET_EXECUTOR_EVENT,
-                payload: {
-                    socketExecutor
-                }
             })
         }
         //////////////////
