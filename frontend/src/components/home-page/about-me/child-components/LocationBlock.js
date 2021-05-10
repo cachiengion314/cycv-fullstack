@@ -69,9 +69,8 @@ const LocationBlock = ({ _id, latitude, longitude, IsDayTime, temperature, skySt
                 return
             }
         }
-        if (!longitude) {
-            setCurrentWeatherMarkerInfo(latitude, longitude)
-        }
+
+        setCurrentWeatherMarkerInfo(latitude, longitude)
     }
         , [longitude])
 
