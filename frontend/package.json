@@ -31,6 +31,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build-deploy": "react-scripts build; scp -i /Users/hoangnam/Downloads/private-keys/caroran_2.cer -r ./build ubuntu@18.139.61.32:/home/ubuntu/frontend",
+    "deploy": "scp -i /Users/hoangnam/Downloads/private-keys/caroran_2.cer -r ./build ubuntu@18.139.61.32:/home/ubuntu/frontend",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
