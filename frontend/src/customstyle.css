@@ -3,7 +3,13 @@
 }
 
 html {
-    font-size: 1.5vmax;
+    font-size: 1vmax;
+}
+
+@media (max-width : 600px){
+    html {
+        font-size: 1.5vmax;
+    }
 }
 
 .text-center {
@@ -29,9 +35,15 @@ html {
 }
 
 .root-container {
-    width: 100vw;
+    width: 55vw;
     height: fit-content;
     display: flex;
+}
+
+@media (max-width : 600px){
+    .root-container {
+        width: 100vw;
+    }
 }
 
 .left-container {
