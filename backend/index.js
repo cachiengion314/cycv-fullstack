@@ -14,7 +14,7 @@ dotenv.config()
 app.use(cors())
 // create a write stream (in append mode)
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
-app.use(morgan(':date[clf] ":method :url" combined', { stream: accessLogStream }))
+app.use(morgan(':remote-addr - :remote-user :date[clf] ":method :url"', { stream: accessLogStream }))
 // database
 connectDB()
 // body parser
