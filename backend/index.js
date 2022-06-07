@@ -5,11 +5,16 @@ const http = require("http")
 const socketIo = require("socket.io")
 const Router = require(`./routes/router`)
 const connectDB = require(`./database/connection`)
-const app = express();
+const app = express()
 const cors = require('cors')
+var fs = require('fs')
+var path = require('path')
+
 dotenv.config()
 app.use(cors())
-app.use(morgan(':date[clf] ":method :url"'))
+// create a write stream (in append mode)
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+app.use(morgan(':date[clf] ":method :url" combined', { stream: accessLogStream }))
 // database
 connectDB()
 // body parser
