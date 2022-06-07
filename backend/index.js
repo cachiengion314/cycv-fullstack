@@ -9,7 +9,7 @@ const app = express();
 const cors = require('cors')
 dotenv.config()
 app.use(cors())
-app.use(morgan(`tiny`))
+app.use(morgan(':date[clf] ":method :url"'))
 // database
 connectDB()
 // body parser
